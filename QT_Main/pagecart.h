@@ -5,6 +5,10 @@
 #include <QVector>
 #include <QLineEdit>
 #include <QMap>
+#include <QString>
+#include "item.h"
+#include "barcodescanner.h"
+
 
 struct ItemInfo {
     QString name;
@@ -26,10 +30,13 @@ private slots:
     void onDeleteClicked();
 
     void onBarcodeEntered();
+    void handleItemFetched(const Item &item);
+    void handleFetchFailed(const QString &err);
 
 public:
     explicit PageCart(QWidget *parent = nullptr);
     ~PageCart();
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     Ui::PageCart *ui;
@@ -42,7 +49,8 @@ private:
 
     QVector<int> m_unitPrice;
     QLineEdit *m_editBarcode;         // ⬅ 스캐너 입력용 숨김 edit
-    QMap<QString, ItemInfo> m_itemDb; // ⬅ 바코드 → 상품정보
+    BarcodeScanner *m_scanner;
+    QString m_barcodeData;
 };
 
 #endif // PAGECART_H

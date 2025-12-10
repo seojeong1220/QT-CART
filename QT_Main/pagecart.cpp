@@ -3,6 +3,10 @@
 
 #include <QPushButton>
 #include <QTableWidgetItem>
+#include <QDebug>
+#include <QMessageBox>
+#include <QKeyEvent>
+#include <QApplication>
 
 PageCart::PageCart(QWidget *parent) :
     QWidget(parent),
@@ -10,25 +14,28 @@ PageCart::PageCart(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // 더미 데이터
-    initDummyItems();
-
-
     qDebug() << "[PageCart] constructor called";
-    InitItemDb();        // ⬅ 상품 DB 세팅
 
-    // 1) 바코드 입력용 숨겨진 QLineEdit 생성
+    // 1) 바코드 입력용 숨겨진 QLineEdit (GUI에는 안 보임)
     m_editBarcode = new QLineEdit(this);
-    m_editBarcode->setVisible(false);          // 화면에 안 보이게
+    m_editBarcode->setVisible(false);
     m_editBarcode->setFocusPolicy(Qt::StrongFocus);
-    m_editBarcode->setFocus();                 // Cart 페이지 열리면 포커스 여기로
+    m_editBarcode->setFocus();           // 카트 페이지 오면 스캐너 입력 받을 준비
 
-    connect(m_editBarcode, SIGNAL(returnPressed()), this, SLOT(onBarcodeEntered()));
+    connect(m_editBarcode, SIGNAL(returnPressed()),this, SLOT(onBarcodeEntered()));
 
+    qApp->installEventFilter(this);
+    // 2) 서버 연동용 BarcodeScanner 생성
+    m_scanner = new BarcodeScanner(this);
 
-    // 테이블 컬럼은 UI에 이미 설정됨
+    connect(m_scanner, &BarcodeScanner::itemFetched,
+            this, &PageCart::handleItemFetched);
+    connect(m_scanner, &BarcodeScanner::fetchFailed,
+            this, &PageCart::handleFetchFailed);
+
+    // 3) 테이블 설정 + (테스트용) 더미 데이터
     ui->tableCart->setColumnCount(6);
-
+    initDummyItems();                      // 필요 없으면 나중에 주석 처리
     updateTotal();
 }
 
@@ -196,66 +203,83 @@ void PageCart::onBarcodeEntered()
     if (code.isEmpty())
         return;
 
-    handleBarcode(code);   // 이 함수에서 실제 상품 추가/개수 증가 처리
+    qDebug() << "[PageCart] barcode entered =" << code;
+
+    // ✅ 여기서 서버로 요청 보내기
+    m_scanner->fetchItemDetails(code);
 }
 
-void PageCart::InitItemDb()
+bool PageCart::eventFilter(QObject *obj, QEvent *event)
 {
-    ItemInfo apple;
-    apple.name   = "사과";
-    apple.price  = 3000;
-    apple.weight = 200.0;   // g, 나중에 로드셀 검증에 씀
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
 
-    ItemInfo banana;
-    banana.name   = "바나나";
-    banana.price  = 1500;
-    banana.weight = 120.0;
+        // F11: 전체 화면 토글 (MainWidget 전체를 기준으로)
+        if (keyEvent->key() == Qt::Key_F11) {
+            QWidget *top = this->window();   // 최상위 윈도우 (MainWidget)
+            if (top->isFullScreen())
+                top->showNormal();
+            else
+                top->showFullScreen();
+            return true; // 이벤트 처리 완료
+        }
+        // Enter/Return: 지금까지 모은 바코드 문자열을 서버로 보냄
+        else if (keyEvent->key() == Qt::Key_Return ||
+                 keyEvent->key() == Qt::Key_Enter) {
 
-    ItemInfo milk;
-    milk.name   = "우유";
-    milk.price  = 2500;
-    milk.weight = 900.0;
+            if (!m_barcodeData.isEmpty()) {
+                qDebug() << "Final Barcode ID sent and processing:" << m_barcodeData;
+                m_scanner->fetchItemDetails(m_barcodeData);
+                m_barcodeData.clear();
+            } else {
+                qDebug() << "Enter pressed, but m_barcodeData is empty. Ignoring.";
+            }
+            return true;
+        }
+        // 일반 문자 키: 바코드 문자열에 누적
+        else if (!keyEvent->text().isEmpty() &&
+                 !(keyEvent->modifiers() & (Qt::ShiftModifier |
+                                            Qt::ControlModifier |
+                                            Qt::AltModifier))) {
 
-    // ⬇ 바코드 문자열은 우리가 임의로 정하는 값
-    m_itemDb["111111"] = apple;
-    m_itemDb["222222"] = banana;
-    m_itemDb["333333"] = milk;
-}
-
-void PageCart::handleBarcode(const QString &code)
-{
-    // 1) 등록된 바코드인지 확인
-    if (!m_itemDb.contains(code)) {
-        // TODO: QMessageBox로 "등록되지 않은 바코드입니다" 띄우기
-        return;
+            m_barcodeData.append(keyEvent->text());
+            qDebug() << "Collecting barcode:" << m_barcodeData;
+            return true;
+        }
     }
 
-    ItemInfo info = m_itemDb.value(code);
+    // 나머지 이벤트는 기본 처리로 넘김
+    return QWidget::eventFilter(obj, event);
+}
 
-    // 2) 이미 테이블에 있는 상품인지 이름으로 검색
+void PageCart::handleItemFetched(const Item &item)
+{
+    qDebug() << "[PageCart] handleItemFetched:" << item.name << item.price;
+
+    // 1) 이미 테이블에 있는 상품인지 확인 (상품명 기준)
     int rowFound = -1;
     for (int r = 0; r < ui->tableCart->rowCount(); ++r) {
         QTableWidgetItem *nameItem = ui->tableCart->item(r, 0);
-        if (nameItem && nameItem->text() == info.name) {
+        if (nameItem && nameItem->text() == item.name) {
             rowFound = r;
             break;
         }
     }
 
     if (rowFound == -1) {
-        // 3-1) 없으면 새 행 추가
+        // 2-1) 없으면 새 행 추가
         int row = ui->tableCart->rowCount();
         ui->tableCart->insertRow(row);
 
         // 상품명 / 개수 / 금액
-        ui->tableCart->setItem(row, 0, new QTableWidgetItem(info.name));
+        ui->tableCart->setItem(row, 0, new QTableWidgetItem(item.name));
         ui->tableCart->setItem(row, 1, new QTableWidgetItem("1"));
-        ui->tableCart->setItem(row, 4, new QTableWidgetItem(QString::number(info.price)));
+        ui->tableCart->setItem(row, 4, new QTableWidgetItem(QString::number(item.price)));
 
-        // 단가 목록에도 추가
-        m_unitPrice.append(info.price);
+        // 단가 리스트에도 추가 (기존 +/− 로직에서 사용)
+        m_unitPrice.append(static_cast<int>(item.price));
 
-        // + / - / 삭제 버튼 연결 (기존 initDummyItems의 코드 재활용)
+        // + / - / 삭제 버튼 생성 (initDummyItems()에서 하던 것과 동일)
         QPushButton *btnPlus   = new QPushButton("+", this);
         QPushButton *btnMinus  = new QPushButton("-", this);
         QPushButton *btnDelete = new QPushButton("삭제", this);
@@ -269,7 +293,7 @@ void PageCart::handleBarcode(const QString &code)
         connect(btnDelete,SIGNAL(clicked()), this, SLOT(onDeleteClicked()));
     }
     else {
-        // 3-2) 이미 있는 상품이면 개수 +1
+        // 2-2) 이미 있는 상품이면 개수 +1
         QTableWidgetItem *qtyItem = ui->tableCart->item(rowFound, 1);
         int qty = qtyItem->text().toInt();
         qty++;
@@ -280,5 +304,11 @@ void PageCart::handleBarcode(const QString &code)
 
     updateTotal();
 }
+
+void PageCart::handleFetchFailed(const QString &error)
+{
+    QMessageBox::critical(this, "상품 조회 실패", error);
+}
+
 
 

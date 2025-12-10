@@ -5,6 +5,7 @@
 #include "pagewelcome.h"
 #include "pagecart.h"
 
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWidget;
@@ -19,6 +20,7 @@ public:
     MainWidget(QWidget *parent = nullptr);
     ~MainWidget();
 
+
 private:
     Ui::MainWidget *ui;
     PageWelcome *pPageWelcome;
@@ -26,6 +28,7 @@ private:
 
 private slots:
     void on_pPBStartClicked();
+
 
 };
 #endif // MAINWIDGET_H

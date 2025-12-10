@@ -2,6 +2,8 @@
 #define PAGEWELCOME_H
 
 #include <QWidget>
+#include "barcodescanner.h"
+#include "item.h"
 
 namespace Ui {
 class PageWelcome;

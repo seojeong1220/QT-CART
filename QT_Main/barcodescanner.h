@@ -1,0 +1,28 @@
+#ifndef BARCODESCANNER_H
+#define BARCODESCANNER_H
+
+#include <QObject>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include "item.h"
+
+class BarcodeScanner : public QObject
+{
+    Q_OBJECT
+public:
+    explicit BarcodeScanner(QObject *parent = nullptr);
+
+    void fetchItemDetails(const QString& barcodeId);
+
+signals:
+    void itemFetched(const Item& item);
+    void fetchFailed(const QString& error);
+
+private slots:    void onNetworkReply(QNetworkReply *reply);
+
+private:
+    QNetworkAccessManager *manager;
+    const QString SERVER_BASE_URL = "http://127.0.0.1:8000";
+};
+
+#endif // BARCODESCANNER_H
