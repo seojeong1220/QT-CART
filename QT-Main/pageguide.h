@@ -1,0 +1,28 @@
+#ifndef PAGEGUIDE_H
+#define PAGEGUIDE_H
+
+#include <QWidget>
+
+namespace Ui {
+class PageGuide;
+}
+
+class PageGuide : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit PageGuide(QWidget *parent = nullptr);
+    ~PageGuide();
+
+signals:
+    void backToCartClicked();
+
+private slots:
+    void on_btnBackToCart_clicked();
+
+private:
+    Ui::PageGuide *ui;
+};
+
+#endif // PAGEGUIDE_H

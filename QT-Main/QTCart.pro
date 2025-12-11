@@ -13,6 +13,7 @@ SOURCES += \
     main.cpp \
     mainwidget.cpp \
     pagecart.cpp \
+    pageguide.cpp \
     pagewelcome.cpp
 
 HEADERS += \
@@ -20,14 +21,22 @@ HEADERS += \
     item.h \
     mainwidget.h \
     pagecart.h \
+    pageguide.h \
     pagewelcome.h
 
 FORMS += \
     mainwidget.ui \
     pagecart.ui \
+    pageguide.ui \
     pagewelcome.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES +=
+
+RESOURCES += \
+    map.qrc \
+    maps.qrc

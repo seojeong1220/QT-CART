@@ -32,11 +32,15 @@ private slots:
     void onBarcodeEntered();
     void handleItemFetched(const Item &item);
     void handleFetchFailed(const QString &err);
+    void on_btnGuideMode_clicked();
 
 public:
     explicit PageCart(QWidget *parent = nullptr);
     ~PageCart();
     bool eventFilter(QObject *obj, QEvent *event) override;
+
+signals:
+    void guideModeClicked();
 
 private:
     Ui::PageCart *ui;

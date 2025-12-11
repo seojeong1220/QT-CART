@@ -40,8 +40,9 @@ struct qt_meta_tag_ZN8PageCartE_t {};
 #ifdef QT_MOC_HAS_STRINGDATA
 static constexpr auto qt_meta_stringdata_ZN8PageCartE = QtMocHelpers::stringData(
     "PageCart",
-    "onPlusClicked",
+    "guideModeClicked",
     "",
+    "onPlusClicked",
     "onMinusClicked",
     "onDeleteClicked",
     "onBarcodeEntered",
@@ -49,7 +50,8 @@ static constexpr auto qt_meta_stringdata_ZN8PageCartE = QtMocHelpers::stringData
     "Item",
     "item",
     "handleFetchFailed",
-    "err"
+    "err",
+    "on_btnGuideMode_clicked"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
@@ -61,28 +63,36 @@ Q_CONSTINIT static const uint qt_meta_data_ZN8PageCartE[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-       6,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       0,       // signalCount
+       1,       // signalCount
+
+ // signals: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   62,    2, 0x06,    1 /* Public */,
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   50,    2, 0x08,    1 /* Private */,
-       3,    0,   51,    2, 0x08,    2 /* Private */,
-       4,    0,   52,    2, 0x08,    3 /* Private */,
-       5,    0,   53,    2, 0x08,    4 /* Private */,
-       6,    1,   54,    2, 0x08,    5 /* Private */,
-       9,    1,   57,    2, 0x08,    7 /* Private */,
+       3,    0,   63,    2, 0x08,    2 /* Private */,
+       4,    0,   64,    2, 0x08,    3 /* Private */,
+       5,    0,   65,    2, 0x08,    4 /* Private */,
+       6,    0,   66,    2, 0x08,    5 /* Private */,
+       7,    1,   67,    2, 0x08,    6 /* Private */,
+      10,    1,   70,    2, 0x08,    8 /* Private */,
+      12,    0,   73,    2, 0x08,   10 /* Private */,
+
+ // signals: parameters
+    QMetaType::Void,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 7,    8,
-    QMetaType::Void, QMetaType::QString,   10,
+    QMetaType::Void, 0x80000000 | 8,    9,
+    QMetaType::Void, QMetaType::QString,   11,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -96,6 +106,8 @@ Q_CONSTINIT const QMetaObject PageCart::staticMetaObject = { {
     qt_incomplete_metaTypeArray<qt_meta_tag_ZN8PageCartE_t,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<PageCart, std::true_type>,
+        // method 'guideModeClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'onPlusClicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'onMinusClicked'
@@ -109,7 +121,9 @@ Q_CONSTINIT const QMetaObject PageCart::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<const Item &, std::false_type>,
         // method 'handleFetchFailed'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>
+        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
+        // method 'on_btnGuideMode_clicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
     >,
     nullptr
 } };
@@ -119,13 +133,25 @@ void PageCart::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
     auto *_t = static_cast<PageCart *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->onPlusClicked(); break;
-        case 1: _t->onMinusClicked(); break;
-        case 2: _t->onDeleteClicked(); break;
-        case 3: _t->onBarcodeEntered(); break;
-        case 4: _t->handleItemFetched((*reinterpret_cast< std::add_pointer_t<Item>>(_a[1]))); break;
-        case 5: _t->handleFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 0: _t->guideModeClicked(); break;
+        case 1: _t->onPlusClicked(); break;
+        case 2: _t->onMinusClicked(); break;
+        case 3: _t->onDeleteClicked(); break;
+        case 4: _t->onBarcodeEntered(); break;
+        case 5: _t->handleItemFetched((*reinterpret_cast< std::add_pointer_t<Item>>(_a[1]))); break;
+        case 6: _t->handleFetchFailed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 7: _t->on_btnGuideMode_clicked(); break;
         default: ;
+        }
+    }
+    if (_c == QMetaObject::IndexOfMethod) {
+        int *result = reinterpret_cast<int *>(_a[0]);
+        {
+            using _q_method_type = void (PageCart::*)();
+            if (_q_method_type _q_method = &PageCart::guideModeClicked; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
+                *result = 0;
+                return;
+            }
         }
     }
 }
@@ -149,15 +175,21 @@ int PageCart::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 6)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 6;
+        _id -= 8;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 6)
+        if (_id < 8)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 6;
+        _id -= 8;
     }
     return _id;
+}
+
+// SIGNAL 0
+void PageCart::guideModeClicked()
+{
+    QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
 }
 QT_WARNING_POP

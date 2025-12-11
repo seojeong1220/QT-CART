@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "pagewelcome.h"
 #include "pagecart.h"
+#include "pageguide.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -25,9 +26,12 @@ private:
     Ui::MainWidget *ui;
     PageWelcome *pPageWelcome;
     PageCart *pPageCart;
+    PageGuide *pPageGuide;
 
 private slots:
     void on_pPBStartClicked();
+    void slotShowCartPage();
+    void slotShowGuidePage();
 
 
 };

@@ -37,6 +37,8 @@ PageCart::PageCart(QWidget *parent) :
     ui->tableCart->setColumnCount(6);
     initDummyItems();                      // 필요 없으면 나중에 주석 처리
     updateTotal();
+
+    connect(ui->btnGuideMode, SIGNAL(clicked()), this, SLOT(on_btnGuideMode_clicked()));
 }
 
 PageCart::~PageCart()
@@ -311,4 +313,10 @@ void PageCart::handleFetchFailed(const QString &error)
 }
 
 
+
+
+void PageCart::on_btnGuideMode_clicked()
+{
+    emit guideModeClicked();
+}
 
