@@ -68,8 +68,37 @@ PageCart::PageCart(QWidget *parent) :
         "QScrollBar::sub-line:vertical {"
         " height: 0px;"
         "}"
+
+        "QTableWidget {"
+        " background-color: #ffffff;"
+        " border: none;"
+        " font: 11pt \"Ria Sans\";"
+        "}"
+
+        "QTableWidget::item {"
+        " border-bottom: 1px solid #eeeeee;"
+        " padding: 12px;"
+        "}"
+
+        "QHeaderView::section {"
+        " background-color: #ffffff;"
+        " border: none;"
+        " border-bottom: 2px solid #f0f0f0;"
+        " font: bold 11pt \"Ria Sans\";"
+        " padding: 10px;"
+        "}"
+
+        "QScrollBar:vertical {"
+        " width: 8px;"
+        " background: transparent;"
+        "}"
+        "QScrollBar::handle:vertical {"
+        " background: #d0d0d0;"
+        " border-radius: 4px;"
+        "}"
         );
 
+    ui->tableCart->setSelectionMode(QAbstractItemView::NoSelection);
 
 
     // 1) 바코드 입력용 숨겨진 QLineEdit (GUI에는 안 보임)
@@ -117,6 +146,7 @@ void PageCart::initDummyItems()
 
         // 상품명
         ui->tableCart->setItem(row, 0, new QTableWidgetItem(names[row]));
+
         // 개수
         ui->tableCart->setItem(row, 1, new QTableWidgetItem("0"));
         // 금액

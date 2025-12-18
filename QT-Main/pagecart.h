@@ -55,7 +55,8 @@ private:
     void InitItemDb();
     void updateTotal();
     void handleBarcode(const QString &code);   // ⬅ 바코드 처리용
-
+    void createRow(int row, const QString &name, int price, int qty);
+    void updateRowAmount(int row, int qty);
     QVector<int> m_unitPrice;
     QLineEdit *m_editBarcode;         // ⬅ 스캐너 입력용 숨김 edit
     BarcodeScanner *m_scanner;
