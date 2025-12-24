@@ -7,8 +7,6 @@
 #include <QKeyEvent>
 #include <QApplication>
 #include <QStackedWidget>
-
-// UDP 통신 및 네트워크 데이터그램 헤더
 #include <QtNetwork/QUdpSocket>
 #include <QtNetwork/QNetworkDatagram>
 
@@ -108,20 +106,17 @@ PageCart::PageCart(QWidget *parent) :
     m_node = rclcpp::Node::make_shared("page_cart_udp_node");
     m_cmdVelPub = m_node->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
 
-    // 1. 드라이버 인스턴스 생성
-    m_uwbDriver = new UwbDriver();
+    m_udpSocket = new QUdpSocket(this);
 
-    // 2. USB 포트 열기 (내부적으로 스레드가 돌며 데이터 파싱 시작)
-    if (m_uwbDriver->openDualPorts("/dev/ttyUSB0", "/dev/ttyUSB1")) {
-        qDebug() << "[PageCart] UWB Driver Connected to /dev/ttyUSB0";
+    // 포트 44444 바인딩 (모든 IP에서 오는 데이터 수신)
+    if (m_udpSocket->bind(QHostAddress::Any, 44444)) {
+        qDebug() << "[PageCart] UDP Socket Listening on Port 44444";
     } else {
-        qDebug() << "[PageCart] Failed to open UWB Driver! Check Connection.";
+        qDebug() << "[PageCart] Failed to bind UDP Port!";
     }
 
-    // 3. 타이머 설정 (50ms마다 데이터 확인 = 20Hz)
-    m_uwbTimer = new QTimer(this);
-    connect(m_uwbTimer, &QTimer::timeout, this, &PageCart::onUwbTimerTimeout);
-    m_uwbTimer->start(50);
+    // 데이터가 들어오면 processPendingDatagrams 실행하도록 연결
+    connect(m_udpSocket, &QUdpSocket::readyRead, this, &PageCart::processPendingDatagrams);
 
     // 바코드 및 UI 설정
     m_editBarcode = new QLineEdit(this);
@@ -147,45 +142,42 @@ PageCart::PageCart(QWidget *parent) :
 
 PageCart::~PageCart()
 {
-    // 메모리 정리 및 스레드 종료
-    if (m_uwbTimer) {
-        m_uwbTimer->stop();
-        delete m_uwbTimer;
-    }
-    if (m_uwbDriver) {
-        m_uwbDriver->closePorts(); // 스레드 join 및 포트 닫기
-        delete m_uwbDriver;
-    }
     delete ui;
 }
 
-// 타이머 핸들러: 드라이버에서 최신 거리값 조회 및 로봇 제어
-void PageCart::onUwbTimerTimeout()
+void PageCart::processPendingDatagrams()
 {
-    // 화면이 보이지 않거나(다른 페이지 이동), 안내 모드 등일 때는 제어 중지
-    // if (!this->isVisible()) {
-    //     controlDualRobot(0.0, 0.0); // 안전을 위해 정지 명령
-    //     return;
-    // }
+    // 대기 중인 패킷이 있으면 모두 처리
+    while (m_udpSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = m_udpSocket->receiveDatagram();
 
-    if (m_uwbDriver) {
-        float l = 0.0f;
-        float r = 0.0f;
+        // 받은 데이터: "L:1.52" or "R:1.20"
+        QString data = QString::fromUtf8(datagram.data()).trimmed();
 
-        // 드라이버 내부의 Mutex로 보호된 최신값 가져오기 (Non-blocking)
-        m_uwbDriver->getDistances(l, r);
+        bool updated = false;
 
-        m_distL = l;
-        m_distR = r;
+        // 데이터 파싱
+        if (data.startsWith("L:")) {
+            m_distL = data.mid(2).toFloat(); // "L:" 제거하고 숫자로 변환
+            updated = true;
+        }
+        else if (data.startsWith("R:")) {
+            m_distR = data.mid(2).toFloat(); // "R:" 제거하고 숫자로 변환
+            updated = true;
+        }
 
-        controlDualRobot(m_distL, m_distR);
-
-        qDebug() << "UWB Dist: L=" << l << " R=" << r;
+        // 값이 갱신되었으면 로봇 제어
+        if (updated) {
+            qDebug() << "UDP Recv: " << data << " (L:" << m_distL << " R:" << m_distR << ")";
+            controlDualRobot(m_distL, m_distR);
+        }
     }
 }
 
 void PageCart::controlDualRobot(float l, float r)
 {
+    // if (!this->isVisible()) return;
+
     auto msg = geometry_msgs::msg::Twist();
 
     // 유효하지 않은 값이면 정지

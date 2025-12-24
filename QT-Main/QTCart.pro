@@ -65,8 +65,7 @@ SOURCES += \
     pageguide.cpp \
     pagepay.cpp \
     pagepay_card.cpp \
-    pagewelcome.cpp \
-    uwbdriver.cpp
+    pagewelcome.cpp
 
 HEADERS += \
     barcodescanner.h \
@@ -76,8 +75,7 @@ HEADERS += \
     pageguide.h \
     pagepay.h \
     pagepay_card.h \
-    pagewelcome.h \
-    uwbdriver.h
+    pagewelcome.h
 
 FORMS += \
     mainwidget.ui \

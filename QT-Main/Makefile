@@ -59,8 +59,7 @@ SOURCES       = barcodescanner.cpp \
 		pageguide.cpp \
 		pagepay.cpp \
 		pagepay_card.cpp \
-		pagewelcome.cpp \
-		uwbdriver.cpp qrc_cart_img.cpp \
+		pagewelcome.cpp qrc_cart_img.cpp \
 		qrc_cart_obj.cpp \
 		qrc_image.cpp \
 		qrc_maps.cpp \
@@ -79,7 +78,6 @@ OBJECTS       = barcodescanner.o \
 		pagepay.o \
 		pagepay_card.o \
 		pagewelcome.o \
-		uwbdriver.o \
 		qrc_cart_img.o \
 		qrc_cart_obj.o \
 		qrc_image.o \
@@ -460,16 +458,14 @@ DIST          = ../../../Qt/6.8.3/gcc_64/mkspecs/features/spec_pre.prf \
 		pageguide.h \
 		pagepay.h \
 		pagepay_card.h \
-		pagewelcome.h \
-		uwbdriver.h barcodescanner.cpp \
+		pagewelcome.h barcodescanner.cpp \
 		main.cpp \
 		mainwidget.cpp \
 		pagecart.cpp \
 		pageguide.cpp \
 		pagepay.cpp \
 		pagepay_card.cpp \
-		pagewelcome.cpp \
-		uwbdriver.cpp
+		pagewelcome.cpp
 QMAKE_TARGET  = QTCart
 DESTDIR       = 
 TARGET        = QTCart
@@ -1242,8 +1238,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents cart_img.qrc cart_obj.qrc image.qrc maps.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../Qt/6.8.3/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents barcodescanner.h item.h mainwidget.h pagecart.h pageguide.h pagepay.h pagepay_card.h pagewelcome.h uwbdriver.h $(DISTDIR)/
-	$(COPY_FILE) --parents barcodescanner.cpp main.cpp mainwidget.cpp pagecart.cpp pageguide.cpp pagepay.cpp pagepay_card.cpp pagewelcome.cpp uwbdriver.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents barcodescanner.h item.h mainwidget.h pagecart.h pageguide.h pagepay.h pagepay_card.h pagewelcome.h $(DISTDIR)/
+	$(COPY_FILE) --parents barcodescanner.cpp main.cpp mainwidget.cpp pagecart.cpp pageguide.cpp pagepay.cpp pagepay_card.cpp pagewelcome.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwidget.ui pagecart.ui pageguide.ui pagepay.ui pagepay_card.ui pagewelcome.ui $(DISTDIR)/
 
 
@@ -1703,10 +1699,6 @@ moc_mainwidget.cpp: mainwidget.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qpen.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextoption.h \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/QMap \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/QTimer \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qtimer.h \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qbasictimer.h \
-		uwbdriver.h \
 		/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp \
 		/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp \
 		/opt/ros/humble/include/rclcpp/rclcpp/executors/multi_threaded_executor.hpp \
@@ -2058,6 +2050,10 @@ moc_mainwidget.cpp: mainwidget.h \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/vector3__traits.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/twist__type_support.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/rosidl_generator_cpp__visibility_control.hpp \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QUdpSocket \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qudpsocket.h \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QNetworkDatagram \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qnetworkdatagram.h \
 		pageguide.h \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/pose_stamped.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__struct.hpp \
@@ -2279,10 +2275,6 @@ moc_pagecart.cpp: pagecart.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextoption.h \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/QMap \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/QString \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/QTimer \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qtimer.h \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qbasictimer.h \
-		uwbdriver.h \
 		item.h \
 		barcodescanner.h \
 		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QNetworkAccessManager \
@@ -2667,6 +2659,10 @@ moc_pagecart.cpp: pagecart.h \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/vector3__traits.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/twist__type_support.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/rosidl_generator_cpp__visibility_control.hpp \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QUdpSocket \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qudpsocket.h \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QNetworkDatagram \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qnetworkdatagram.h \
 		moc_predefs.h \
 		../../../Qt/6.8.3/gcc_64/libexec/moc
 	/home/ubuntu/Qt/6.8.3/gcc_64/libexec/moc $(DEFINES) --include /home/ubuntu/Document/QT-CART/QT-Main/moc_predefs.h -I/home/ubuntu/Qt/6.8.3/gcc_64/mkspecs/linux-g++ -I/home/ubuntu/Document/QT-CART/QT-Main -I/opt/ros/humble/include -I/opt/ros/humble/include/rclcpp -I/opt/ros/humble/include/rcl -I/opt/ros/humble/include/rcutils -I/opt/ros/humble/include/rmw -I/opt/ros/humble/include/rcpputils -I/opt/ros/humble/include/builtin_interfaces -I/opt/ros/humble/include/geometry_msgs -I/opt/ros/humble/include/std_msgs -I/opt/ros/humble/include/nav_msgs -I/opt/ros/humble/include/rosidl_runtime_c -I/opt/ros/humble/include/rosidl_runtime_cpp -I/opt/ros/humble/include/rosidl_typesupport_interface -I/opt/ros/humble/include/rosidl_typesupport_cpp -I/opt/ros/humble/include/rosidl_typesupport_introspection_cpp -I/opt/ros/humble/include/tracetools -I/opt/ros/humble/include/libstatistics_collector -I/opt/ros/humble/include/statistics_msgs -I/opt/ros/humble/include/rcl_yaml_param_parser -I/opt/ros/humble/include/libyaml_vendor -I/opt/ros/humble/include/rcl_interfaces -I/opt/ros/humble/include/rcl_logging_interface -I/opt/ros/humble/include/rosgraph_msgs -I/opt/ros/humble/include/unique_identifier_msgs -I/opt/ros/humble/include/action_msgs -I/opt/ros/humble/include/rosidl_adapter -I/home/ubuntu/Qt/6.8.3/gcc_64/include -I/home/ubuntu/Qt/6.8.3/gcc_64/include/QtWidgets -I/home/ubuntu/Qt/6.8.3/gcc_64/include/QtGui -I/home/ubuntu/Qt/6.8.3/gcc_64/include/QtNetwork -I/home/ubuntu/Qt/6.8.3/gcc_64/include/QtSerialPort -I/home/ubuntu/Qt/6.8.3/gcc_64/include/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include pagecart.h -o moc_pagecart.cpp
@@ -4292,10 +4288,6 @@ main.o: main.cpp mainwidget.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qpen.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextoption.h \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/QMap \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/QTimer \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qtimer.h \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qbasictimer.h \
-		uwbdriver.h \
 		/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp \
 		/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp \
 		/opt/ros/humble/include/rclcpp/rclcpp/executors/multi_threaded_executor.hpp \
@@ -4647,6 +4639,10 @@ main.o: main.cpp mainwidget.h \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/vector3__traits.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/twist__type_support.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/rosidl_generator_cpp__visibility_control.hpp \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QUdpSocket \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qudpsocket.h \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QNetworkDatagram \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qnetworkdatagram.h \
 		pageguide.h \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/pose_stamped.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__struct.hpp \
@@ -4903,10 +4899,6 @@ mainwidget.o: mainwidget.cpp mainwidget.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qpen.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextoption.h \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/QMap \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/QTimer \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qtimer.h \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qbasictimer.h \
-		uwbdriver.h \
 		/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp \
 		/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp \
 		/opt/ros/humble/include/rclcpp/rclcpp/executors/multi_threaded_executor.hpp \
@@ -5258,6 +5250,10 @@ mainwidget.o: mainwidget.cpp mainwidget.h \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/vector3__traits.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/twist__type_support.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/rosidl_generator_cpp__visibility_control.hpp \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QUdpSocket \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qudpsocket.h \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QNetworkDatagram \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qnetworkdatagram.h \
 		pageguide.h \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/pose_stamped.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__struct.hpp \
@@ -5487,10 +5483,6 @@ pagecart.o: pagecart.cpp pagecart.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextoption.h \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/QMap \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/QString \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/QTimer \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qtimer.h \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/qbasictimer.h \
-		uwbdriver.h \
 		item.h \
 		barcodescanner.h \
 		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QNetworkAccessManager \
@@ -5875,13 +5867,21 @@ pagecart.o: pagecart.cpp pagecart.h \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/vector3__traits.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/twist__type_support.hpp \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/rosidl_generator_cpp__visibility_control.hpp \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QUdpSocket \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qudpsocket.h \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QNetworkDatagram \
+		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qnetworkdatagram.h \
 		ui_pagecart.h \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QPushButton \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qpushbutton.h \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractbutton.h \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QTableWidgetItem \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qtablewidget.h \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qtableview.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QApplication \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qapplication.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QGridLayout \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qgridlayout.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlayout.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlayoutitem.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qboxlayout.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QHBoxLayout \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QHeaderView \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qheaderview.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractitemview.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractscrollarea.h \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/qabstractitemmodel.h \
@@ -5897,20 +5897,26 @@ pagecart.o: pagecart.cpp pagecart.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qtabbar.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qtabwidget.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qrubberband.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QLabel \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlabel.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qpicture.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QPushButton \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qpushbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QSpacerItem \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QTableWidget \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qtablewidget.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qtableview.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QVBoxLayout \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QTableWidgetItem \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/QDebug \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QMessageBox \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qmessagebox.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qdialog.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qdialogbuttonbox.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/QKeyEvent \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QApplication \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qapplication.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QStackedWidget \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qstackedwidget.h \
-		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QUdpSocket \
-		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qudpsocket.h \
-		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QNetworkDatagram \
-		../../../Qt/6.8.3/gcc_64/include/QtNetwork/qnetworkdatagram.h
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qstackedwidget.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pagecart.o pagecart.cpp
 
 pageguide.o: pageguide.cpp pageguide.h \
@@ -6469,17 +6475,28 @@ pageguide.o: pageguide.cpp pageguide.h \
 		/opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/twist__type_support.hpp \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/QHideEvent \
 		ui_pageguide.h \
-		../../../Qt/6.8.3/gcc_64/include/QtGui/QPixmap \
-		../../../Qt/6.8.3/gcc_64/include/QtCore/QDebug \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QPushButton \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qpushbutton.h \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtCore/QVariant \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/QIcon \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QApplication \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qapplication.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QFrame \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qframe.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QHBoxLayout \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qboxlayout.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlayout.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlayoutitem.h \
 		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qgridlayout.h \
-		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QVBoxLayout
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QLabel \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlabel.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qpicture.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextdocument.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QPushButton \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qpushbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QSpacerItem \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QVBoxLayout \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/QPixmap \
+		../../../Qt/6.8.3/gcc_64/include/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pageguide.o pageguide.cpp
 
 pagepay.o: pagepay.cpp pagepay.h \
@@ -6672,7 +6689,18 @@ pagepay.o: pagepay.cpp pagepay.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qinputmethod.h \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/qlocale.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qguiapplication_platform.h \
-		ui_pagepay.h
+		ui_pagepay.h \
+		../../../Qt/6.8.3/gcc_64/include/QtCore/QVariant \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QApplication \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qapplication.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QLabel \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlabel.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qframe.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qpicture.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextdocument.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QPushButton \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qpushbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractbutton.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pagepay.o pagepay.cpp
 
 pagepay_card.o: pagepay_card.cpp pagepay_card.h \
@@ -6865,7 +6893,25 @@ pagepay_card.o: pagepay_card.cpp pagepay_card.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qinputmethod.h \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/qlocale.h \
 		../../../Qt/6.8.3/gcc_64/include/QtGui/qguiapplication_platform.h \
-		ui_pagepay_card.h
+		ui_pagepay_card.h \
+		../../../Qt/6.8.3/gcc_64/include/QtCore/QVariant \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QApplication \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qapplication.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QLabel \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlabel.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qframe.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qpicture.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextdocument.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QPushButton \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qpushbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QTextEdit \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qtextedit.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextoption.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextcursor.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextformat.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qpen.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pagepay_card.o pagepay_card.cpp
 
 pagewelcome.o: pagewelcome.cpp pagewelcome.h \
@@ -7092,11 +7138,25 @@ pagewelcome.o: pagewelcome.cpp pagewelcome.h \
 		../../../Qt/6.8.3/gcc_64/include/QtCore/QIODevice \
 		../../../Qt/6.8.3/gcc_64/include/QtNetwork/QNetworkRequest \
 		item.h \
-		ui_pagewelcome.h
+		ui_pagewelcome.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QApplication \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qapplication.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QHBoxLayout \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qboxlayout.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlayout.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlayoutitem.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qgridlayout.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QLabel \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qlabel.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qframe.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qpicture.h \
+		../../../Qt/6.8.3/gcc_64/include/QtGui/qtextdocument.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QPushButton \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qpushbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QSpacerItem \
+		../../../Qt/6.8.3/gcc_64/include/QtWidgets/QVBoxLayout
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pagewelcome.o pagewelcome.cpp
-
-uwbdriver.o: uwbdriver.cpp uwbdriver.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o uwbdriver.o uwbdriver.cpp
 
 qrc_cart_img.o: qrc_cart_img.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_cart_img.o qrc_cart_img.cpp

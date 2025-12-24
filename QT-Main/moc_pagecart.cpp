@@ -55,7 +55,7 @@ static constexpr auto qt_meta_stringdata_ZN8PageCartE = QtMocHelpers::stringData
     "on_btnGuideMode_clicked",
     "on_pushButton_clicked",
     "on_btnPay_clicked",
-    "onUwbTimerTimeout"
+    "processPendingDatagrams"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
@@ -142,7 +142,7 @@ Q_CONSTINIT const QMetaObject PageCart::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'on_btnPay_clicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'onUwbTimerTimeout'
+        // method 'processPendingDatagrams'
         QtPrivate::TypeAndForceComplete<void, std::false_type>
     >,
     nullptr
@@ -164,7 +164,7 @@ void PageCart::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 8: _t->on_btnGuideMode_clicked(); break;
         case 9: _t->on_pushButton_clicked(); break;
         case 10: _t->on_btnPay_clicked(); break;
-        case 11: _t->onUwbTimerTimeout(); break;
+        case 11: _t->processPendingDatagrams(); break;
         default: ;
         }
     }

@@ -6,17 +6,17 @@
 #include <QLineEdit>
 #include <QMap>
 #include <QString>
-#include <QTimer>
-#include "uwbdriver.h"
 #include "item.h"
 #include "barcodescanner.h"
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/twist.hpp"
+#include <QtNetwork/QUdpSocket>
+#include <QtNetwork/QNetworkDatagram>
 
 struct ItemInfo {
     QString name;
     int price;
-    double weight;   // 나중에 로드셀 검증용
+    double weight;
 };
 
 namespace Ui {
@@ -37,10 +37,9 @@ private slots:
     void on_btnGuideMode_clicked();
     void on_pushButton_clicked();
     void on_btnPay_clicked();
-    void onUwbTimerTimeout();
+    void processPendingDatagrams();
 
 public:
-
     explicit PageCart(QWidget *parent = nullptr);
     ~PageCart();
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -55,15 +54,13 @@ private:
     void initDummyItems();
     void updateRowAmount(int row);
     void updateTotal();
-    void handleBarcode(const QString &code);
     void createRow(int row, const QString &name, int price, int qty);
     void updateRowAmount(int row, int qty);
     QVector<int> m_unitPrice;
     QLineEdit *m_editBarcode;
     BarcodeScanner *m_scanner;
     QString m_barcodeData;
-    UwbDriver *m_uwbDriver;
-    QTimer *m_uwbTimer;
+    QUdpSocket *m_udpSocket;
 
     // UWB 데이터
     float m_distL = 0.0;
