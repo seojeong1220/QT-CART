@@ -31,15 +31,13 @@ private slots:
     void onPlusClicked();
     void onMinusClicked();
     void onDeleteClicked();
-
     void onBarcodeEntered();
     void handleItemFetched(const Item &item);
     void handleFetchFailed(const QString &err);
     void on_btnGuideMode_clicked();
-
     void on_pushButton_clicked();
-
     void on_btnPay_clicked();
+    void onUwbTimerTimeout();
 
 public:
 
@@ -49,17 +47,7 @@ public:
 
 signals:
     void guideModeClicked();
-
-private slots:
-    void onPlusClicked();
-    void onMinusClicked();
-    void onDeleteClicked();
-    void onBarcodeEntered();
-    void handleItemFetched(const Item &item);
-    void handleFetchFailed(const QString &err);
-    void on_btnGuideMode_clicked();
-
-    void onUwbTimerTimeout();
+    void goWelcome();
 
 private:
     Ui::PageCart *ui;
@@ -67,7 +55,7 @@ private:
     void initDummyItems();
     void updateRowAmount(int row);
     void updateTotal();
-    void handleBarcode(const QString &code);   // ⬅ 바코드 처리용
+    void handleBarcode(const QString &code);
     void createRow(int row, const QString &name, int price, int qty);
     void updateRowAmount(int row, int qty);
     QVector<int> m_unitPrice;
