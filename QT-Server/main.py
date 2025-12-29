@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 import models, database
 
+from read_weight import read_cart_weight
+
+
 app = FastAPI()
 models.Base.metadata.create_all(bind=database.engine)
 
@@ -37,3 +40,12 @@ def read_item(item_id: int, db: Session = Depends(get_db)):
 @app.get("/items", response_model=List[models.ItemSchema])
 def read_all_items(db: Session = Depends(get_db)):
     return db.query(models.Item).all()
+
+@app.get("/cart/weight")
+def get_cart_weight():
+    return {
+        "cart_weight": read_cart_weight(),
+        "unit": "g"
+    }
+
+    
