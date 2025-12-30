@@ -8,10 +8,6 @@
 #include <QString>
 #include "item.h"
 #include "barcodescanner.h"
-#include "rclcpp/rclcpp.hpp"
-#include "geometry_msgs/msg/twist.hpp"
-#include <QtNetwork/QUdpSocket>
-#include <QtNetwork/QNetworkDatagram>
 
 struct ItemInfo {
     QString name;
@@ -52,11 +48,13 @@ signals:
 private:
     Ui::PageCart *ui;
     QPixmap m_cartPixmap;
+
     void initDummyItems();
     void updateRowAmount(int row);
     void updateTotal();
     void createRow(int row, const QString &name, int price, int qty);
     void updateRowAmount(int row, int qty);
+
     QVector<int> m_unitPrice;
     QLineEdit *m_editBarcode;
     BarcodeScanner *m_scanner;
