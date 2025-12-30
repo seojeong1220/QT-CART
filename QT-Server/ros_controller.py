@@ -39,7 +39,7 @@ class RosController(Node):
         self.receive_qt_command()
         
         # 한 줄 로그 출력
-        print(f"L: {self.uwb_L:>5.2f}m | R: {self.uwb_R:>5.2f}m", end='', flush=True)
+        print(f"\rL: {self.uwb_L:>5.2f}m | R: {self.uwb_R:>5.2f}m   ", end='', flush=True)
 
         msg = TwistStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
