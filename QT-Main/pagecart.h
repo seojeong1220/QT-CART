@@ -33,6 +33,15 @@ public:
     explicit PageCart(QWidget *parent = nullptr);
     ~PageCart();
 
+    struct CartLine {
+        QString name;
+        int qty;
+        int unitPrice;
+    };
+
+    QVector<CartLine> getCartLines() const;
+    void resetCart();
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
@@ -40,6 +49,7 @@ signals:
     void guideModeClicked();
     void goWelcome();
     void goPay();
+    void payClicked();
 
 private slots:
     void onPlusClicked();
@@ -47,42 +57,45 @@ private slots:
     void onDeleteClicked();
     void onBarcodeEntered();
 
+    // BarcodeScanner 시그널(너 헤더에 있는 버전 유지)
     void handleItemFetched(const Item &item, double cartWeight);
     void handleFetchFailed(const QString &err);
 
-    void on_btnGuideMode_clicked();
-    void on_pushButton_clicked();
-    void on_btnPay_clicked();
+    void on_btnGuideMode_clicked();  // (ui에 없으면 지워도 됨)
+    void on_pushButton_clicked();    // clear cart 버튼(pushButton)
+    void on_btnPay_clicked();        // (ui에 없으면 지워도 됨)
 
 private:
-    /* UI */
     Ui::PageCart *ui;
-    QPixmap m_cartPixmap;
-    void addItemByScan(const Item &item);
-    void updateExpectedWeightByScan(double itemWeight);
-    bool checkWeightOrStop(double cartWeight);
+
     /* Cart Data */
-    QVector<ItemInfo> m_items;     // ✅ 반드시 필요
+    QVector<ItemInfo> m_items;
     QVector<int> m_unitPrice;
 
     double m_expectedWeight = 0.0;
     const double m_tolerance = 30.0;
 
     /* Barcode */
-    QLineEdit *m_editBarcode;
+    QLineEdit *m_editBarcode = nullptr;
     QString m_barcodeData;
-    BarcodeScanner *m_scanner;
+    BarcodeScanner *m_scanner = nullptr;
 
     /* Network */
-    QUdpSocket *m_udpSocket;
+    QUdpSocket *m_udpSocket = nullptr;
 
     /* Internal */
     void initDummyItems();
+    void addRowForItem(const QString& name, int unitPrice, int qty);
     void updateRowAmount(int row);
     void updateTotal();
 
     /* Robot control */
-    void sendRobotMode(int mode);  // ✅ 핵심
+    void sendRobotMode(int mode);
+
+    /* Weight helpers */
+    void addItemByScan(const Item &item);
+    void updateExpectedWeightByScan(double itemWeight);
+    bool checkWeightOrStop(double cartWeight);
 };
 
 #endif // PAGECART_H

@@ -3,9 +3,10 @@
 #include "pagewelcome.h"
 #include "pagecart.h"
 #include "pagepay.h"
-
 #include <QDebug>
 #include <QtNetwork/QHostAddress>
+#include "pagepay_card.h"
+#include "pagetotalpay.h"
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
@@ -16,27 +17,55 @@ MainWidget::MainWidget(QWidget *parent)
     m_udpSocket = new QUdpSocket(this);
 
     pPageWelcome = new PageWelcome(this);
-    pPageCart = new PageCart(this);
-    pPageGuide =  new PageGuide(this);
-    pPagePay = new PagePay(this);
+    pPageCart    = new PageCart(this);
+    pPageGuide   = new PageGuide(this);
+    pPagePay     = new PagePay(this);
+    pPageCard    = new pagepay_card(this);
+    pPageTotalPay = new PageTotalPay(this);
+    // stackedWidget register
 
     ui->pstackedWidget->addWidget(pPageWelcome);
     ui->pstackedWidget->addWidget(pPageCart);
     ui->pstackedWidget->addWidget(pPageGuide);
     ui->pstackedWidget->addWidget(pPagePay);
+    ui->pstackedWidget->addWidget(pPageCard);
+    ui->pstackedWidget->addWidget(pPageTotalPay);
 
     ui->pstackedWidget->setCurrentWidget(pPageWelcome);
 
-    connect(ui->pstackedWidget, &QStackedWidget::currentChanged, this, &MainWidget::onPageChanged);
-    connect(pPageGuide, &PageGuide::requestGoal, this, &MainWidget::onGoalRequested);
+// <<<<<<< HEAD
+//     connect(ui->pstackedWidget, &QStackedWidget::currentChanged, this, &MainWidget::onPageChanged);
+//     connect(pPageGuide, &PageGuide::requestGoal, this, &MainWidget::onGoalRequested);
 
-    connect(pPageWelcome, SIGNAL(startClicked()), this, SLOT(on_pPBStartClicked()));
+//     connect(pPageWelcome, SIGNAL(startClicked()), this, SLOT(on_pPBStartClicked()));
+//     connect(pPageGuide, SIGNAL(backToCartClicked()), this, SLOT(slotShowCartPage()));
+//     connect(pPageCart, SIGNAL(guideModeClicked()), this, SLOT(slotShowGuidePage()));
+//     connect(pPageCart,SIGNAL(goWelcome()),this, SLOT(slotShowWelcomePage()));
+//     connect(pPageCart, SIGNAL(goPay()), this, SLOT(slotShowPayPage()));
+//     connect(pPagePay, SIGNAL(backToCartClicked()), this, SLOT(slotShowCartPage()));
+// =======
+    // ✅ 여기만 바꾸면 됨:
+    // (기존) connect(pPageWelcome, SIGNAL(startClicked()), this, SLOT(on_pPBStartClicked()));
+    // (변경) PageWelcome에서 애니메이션 끝나면 emit startRequested(); 하니까,
+    //        MainWidget는 그걸 받아서 Cart 페이지로 넘김
+    connect(pPageWelcome, &PageWelcome::startRequested,
+            this, &MainWidget::slotShowCartPage);
+
+    // 나머지 기존 연결들 그대로
     connect(pPageGuide, SIGNAL(backToCartClicked()), this, SLOT(slotShowCartPage()));
-    connect(pPageCart, SIGNAL(guideModeClicked()), this, SLOT(slotShowGuidePage()));
-    connect(pPageCart,SIGNAL(goWelcome()),this, SLOT(slotShowWelcomePage()));
-    connect(pPageCart, SIGNAL(goPay()), this, SLOT(slotShowPayPage()));
-    connect(pPagePay, SIGNAL(backToCartClicked()), this, SLOT(slotShowCartPage()));
+    connect(pPageCart,  SIGNAL(guideModeClicked()),  this, SLOT(slotShowGuidePage()));
+    connect(pPageCart,  SIGNAL(goWelcome()),         this, SLOT(slotShowWelcomePage()));
+    connect(pPagePay,   SIGNAL(creditCardClicked()), this, SLOT(slotShowPayCardPage()));
+    connect(pPagePay, SIGNAL(backCartClicked()), this, SLOT(slotShowCartPage()));
+    connect(pPageCart,  SIGNAL(payClicked()),        this, SLOT(slotShowPayPage()));
+    connect(pPageCard,  SIGNAL(backToPayClicked()),  this, SLOT(slotShowPayPage()));
+    connect(pPagePay,   SIGNAL(goWelcomeClicked()),  this, SLOT(slotShowWelcomePage()));
+    connect(pPagePay,   SIGNAL(backCartClicked()),   this, SLOT(slotShowCartPage()));
+    connect(pPageCard, SIGNAL(goTotalPayClicked()), this, SLOT(slotShowTotalPayPage_2()));
+    connect(pPageTotalPay, &PageTotalPay::backToStartClicked,
+            this, &MainWidget::slotShowWelcomePage);
 }
+
 
 MainWidget::~MainWidget()
 {
@@ -103,5 +132,37 @@ void MainWidget::slotShowWelcomePage()
 }
 void MainWidget::slotShowPayPage()
 {
+// <<<<<<< HEAD
+//     ui->pstackedWidget->setCurrentWidget(pPagePay);
+// =======
+    auto cartLines = pPageCart->getCartLines();
+
+    // 2) PagePay 형식으로 변환해서 전달
+    QVector<PagePay::PayLine> payLines;
+    payLines.reserve(cartLines.size());
+
+    for (const auto &c : cartLines) {
+        PagePay::PayLine p;
+        p.name = c.name;
+        p.qty = c.qty;
+        p.unitPrice = c.unitPrice;
+        payLines.push_back(p);
+    }
+
+    // 3) Pay 페이지 테이블 갱신
+    pPagePay->setPayItems(payLines);
+
+    // 4) 페이지 이동
     ui->pstackedWidget->setCurrentWidget(pPagePay);
+
+}
+void MainWidget::slotShowPayCardPage()
+{
+    ui->pstackedWidget->setCurrentWidget(pPageCard);
+}
+
+
+void MainWidget::slotShowTotalPayPage_2()
+{
+    ui->pstackedWidget->setCurrentWidget(pPageTotalPay);
 }

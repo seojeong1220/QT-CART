@@ -8,6 +8,8 @@
 #include "pagecart.h"
 #include "pageguide.h"
 #include "pagepay.h"
+#include "pagepay_card.h"
+#include "pagetotalpay.h"
 
 // 우분투 중계 서버
 #define ROS_SERVER_IP   "10.10.14.92"
@@ -39,14 +41,23 @@ private:
     void sendRobotMode(int mode);
     void sendGoalCommand(double x, double y);
 
+    pagepay_card *pPageCard;
+    PageTotalPay *pPageTotalPay;
+    // rclcpp::Node::SharedPtr node_;
+    // rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub_;
+
+
 private slots:
     void on_pPBStartClicked();
     void slotShowCartPage();
     void slotShowGuidePage();
     void slotShowWelcomePage();
-    void slotShowPayPage();
-
-    void onPageChanged(int index);
     void onGoalRequested(double x, double y);
+    void onPageChanged(int index);
+    void slotShowPayCardPage();
+    void slotShowPayPage();
+    void slowShowCCartPage();
+    void slotShowTotalPayPage_2();
+
 };
 #endif // MAINWIDGET_H

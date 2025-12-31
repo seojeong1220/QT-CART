@@ -6,134 +6,171 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>532</width>
-    <height>425</height>
+    <width>946</width>
+    <height>528</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <widget class="QLabel" name="lblTitle">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>67</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>지도</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnFindItem">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>10</y>
+     <width>95</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>물건찾기</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnStopGuide">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>10</y>
+     <width>95</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>안내 중지 하기</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnBackToCart">
+   <property name="geometry">
+    <rect>
+     <x>680</x>
+     <y>470</y>
+     <width>241</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>장바구니로 돌아가기</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblmap">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>601</width>
+     <height>371</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border-image: url(:/new/prefix1/map.pgm) 0 0 0 0 stretch stretch;
+</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_4">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>340</y>
+     <width>95</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>01구역</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_6">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>260</y>
+     <width>95</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>02구역</string>
+   </property>
+  </widget>
+  <widget class="QListWidget" name="listWidget">
+   <property name="geometry">
+    <rect>
+     <x>660</x>
+     <y>100</y>
+     <width>256</width>
+     <height>331</height>
+    </rect>
+   </property>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="2,8">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QLabel" name="labelGuideTitle">
-         <property name="text">
-          <string>Instruction Mode</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnBackToCart">
-         <property name="text">
-          <string>장바구니로</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QFrame" name="frame">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QLabel" name="labelMap">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>500</width>
-          <height>300</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>house.pgm</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="foodIcon">
-        <property name="geometry">
-         <rect>
-          <x>30</x>
-          <y>190</y>
-          <width>50</width>
-          <height>50</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="maps.qrc">
-          <normaloff>:/food.png</normaloff>:/food.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>50</width>
-          <height>50</height>
-         </size>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="groceryIcon">
-        <property name="geometry">
-         <rect>
-          <x>430</x>
-          <y>220</y>
-          <width>50</width>
-          <height>50</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="maps.qrc">
-          <normaloff>:/groceries.png</normaloff>:/groceries.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>50</width>
-          <height>50</height>
-         </size>
-        </property>
-       </widget>
-       <zorder>labelMap</zorder>
-       <zorder>foodIcon</zorder>
-       <zorder>groceryIcon</zorder>
-      </widget>
-     </item>
-    </layout>
+    <property name="text">
+     <string>01구역 : 헬로키티</string>
+    </property>
    </item>
-  </layout>
+   <item>
+    <property name="text">
+     <string> 02구역: 음식</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QPushButton" name="pushButton_5">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>180</y>
+     <width>95</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>계산</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>300</y>
+     <width>67</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>입구</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>580</x>
+     <y>150</y>
+     <width>67</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>출구</string>
+   </property>
+  </widget>
  </widget>
- <resources>
-  <include location="maps.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
