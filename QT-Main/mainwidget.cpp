@@ -35,8 +35,9 @@ MainWidget::MainWidget(QWidget *parent)
     connect(pPageWelcome, &PageWelcome::startRequested,
             this, &MainWidget::slotShowCartPage);
 
-    // 나머지 기존 연결들 그대로
     connect(pPageGuide, SIGNAL(backToCartClicked()), this, SLOT(slotShowCartPage()));
+    connect(ui->pstackedWidget, &QStackedWidget::currentChanged, this, &MainWidget::onPageChanged);
+    connect(pPageGuide, &PageGuide::requestGoal, this, &MainWidget::onGoalRequested);
 
     connect(pPageCart,  SIGNAL(guideModeClicked()),  this, SLOT(slotShowGuidePage()));
     connect(pPageCart, SIGNAL(goPay()), this, SLOT(slotShowPayPage()));
@@ -51,6 +52,8 @@ MainWidget::MainWidget(QWidget *parent)
     connect(pPageCard, SIGNAL(goTotalPayClicked()), this, SLOT(slotShowTotalPayPage_2()));
     connect(pPageTotalPay, &PageTotalPay::backToStartClicked,
             this, &MainWidget::slotShowWelcomePage);
+
+    onPageChanged(ui->pstackedWidget->currentIndex());
 }
 
 MainWidget::~MainWidget()

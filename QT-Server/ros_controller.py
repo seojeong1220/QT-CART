@@ -25,8 +25,8 @@ class RosController(Node):
         self.sock_qt = self.create_udp_socket(UDP_PORT_QT)
         self.sock_uwb = self.create_udp_socket(UDP_PORT_UWB)
 
-        # 상태 변수
-        self.current_mode = 0 
+        # 상태 변수 
+        self.current_mode = 2
         self.uwb_L = 0.0
         self.uwb_R = 0.0
         self.nav_goal_handle = None
