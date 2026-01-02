@@ -22,10 +22,10 @@
 
 static QString imageForName(const QString& name)
 {
-    if (name == "아이폰")         return ":/item/cart_iphone.jpg";     // <- 너 리소스 경로로
-    if (name == "핸드크림")       return ":/item/cart_handcream.jpg";
-    if (name == "퍼즐")           return ":/etc_image/puzzle.jpg";
-    if (name == "과자")           return ":/item/cart_snack.jpg";
+    if (name == "아이폰")   return ":/item/cart_iphone.jpg";
+    if (name == "과자")         return ":/item/cart_snack.jpg";
+    if (name == "핸드크림")   return ":/item/cart_handcream.jpg";
+    if (name == "퍼즐")   return ":/etc/puzzle.jpg";
     return ""; // 기본값
 }
 
@@ -145,6 +145,7 @@ PageCart::PageCart(QWidget *parent)
     );
 
     m_weightRetryTimer->start();
+    resetCart();
 }
 
 PageCart::~PageCart()
@@ -293,16 +294,10 @@ void PageCart::onPlusClicked()
     int itemId = m_items[row].id;
     if (itemId <= 0) return;
 
-    // ✅ 서버에 scan 요청 (무게 증가 + movable 판단)
+    // ✅ 서버 요청만 보내고, 수량 증가는 handleItemFetched()에서 처리
     m_scanner->fetchItemDetails(QString::number(itemId));
-
-    // ✅ UI 반영
-    int qty = ui->tableCart->item(row, 3)->text().toInt();
-    ui->tableCart->item(row, 3)->setText(QString::number(qty + 1));
-
-    updateRowAmount(row);
-    updateTotal();
 }
+
 
 // ----------------------------------------
 // - 버튼
@@ -487,9 +482,9 @@ void PageCart::addItemByScan(const Item &item)
     }
 
     if (rowFound == -1) {
-        addRowForItem(item.name, static_cast<int>(item.price), 1);
+        int unit = static_cast<int>(std::lround(item.price));  // 1500.0 -> 1500
+        addRowForItem(item.name, unit, 1);
 
-        // 방금 추가된 row에 weight 업데이트
         int newRow = ui->tableCart->rowCount() - 1;
         if (newRow >= 0 && newRow < m_items.size()){
             m_items[newRow].id = item.id;
@@ -499,14 +494,18 @@ void PageCart::addItemByScan(const Item &item)
         int qty = ui->tableCart->item(rowFound, 3)->text().toInt();
         ui->tableCart->item(rowFound, 3)->setText(QString::number(qty + 1));
 
-        // 같은 상품이면 weight 갱신(0일 때만 채워도 되고, 그냥 덮어써도 됨)
+        // 서버가 준 최신 price 반영하고 싶으면 여기서도 갱신 가능
+        if (rowFound < m_unitPrice.size())
+            m_unitPrice[rowFound] = static_cast<int>(std::lround(item.price));
+
         if (rowFound < m_items.size()) {
-            m_items[rowFound].id = item.id; 
+            m_items[rowFound].id = item.id;
             m_items[rowFound].weight = item.weight;
         }
 
         updateRowAmount(rowFound);
     }
+
 }
 
 // ----------------------------------------
@@ -552,31 +551,31 @@ QVector<PageCart::CartLine> PageCart::getCartLines() const
 
 void PageCart::resetCart()
 {
+    // 1) 서버 cart 초기화
     QUrl url(QString("%1/cart/reset").arg(SERVER_BASE_URL));
     QNetworkRequest req(url);
 
     auto *manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished,
             this, [manager](QNetworkReply *reply){
-
-        qDebug() << "[RESET] response =" << reply->readAll();
-
-        reply->deleteLater();
-        manager->deleteLater();
-    });
-
+                qDebug() << "[RESET] response =" << reply->readAll();
+                reply->deleteLater();
+                manager->deleteLater();
+            });
     manager->post(req, QByteArray());
 
-    // 2) ✅ UI 테이블 행을 전부 삭제 (완전 비움)
+    // 2) ✅ UI 테이블 완전 비우기
     ui->tableCart->setRowCount(0);
 
-    // 3) ✅ 내부 데이터도 같이 비움 (안 맞으면 나중에 계산 꼬임 방지)
+    // 3) ✅ 내부 데이터도 초기화
     m_unitPrice.clear();
     m_items.clear();
     m_expectedWeight = 0.0;
-    
+
+    // 4) 라벨 갱신
     updateTotal();
 }
+
 
 void PageCart::requestCartWeightOnly()
 {
