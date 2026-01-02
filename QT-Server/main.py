@@ -27,13 +27,14 @@ def is_movable(expected, real):
     diff_ratio = abs(real - expected) / expected
     return diff_ratio <= 0.05
 
+# 🧺 카트 무게 기준값 설정
 @app.post("/cart/tare")
 def tare_cart():
     global EXPECTED_WEIGHT
     EXPECTED_WEIGHT = read_cart_weight()
     return {"expected_weight": EXPECTED_WEIGHT}
 
-# 상품 등록
+# 📦 상품 등록
 @app.post("/items/")
 def create_item(item: models.ItemCreate, db: Session = Depends(get_db)):
     db_item = models.Item(
@@ -48,13 +49,13 @@ def create_item(item: models.ItemCreate, db: Session = Depends(get_db)):
     return db_item
 
 # ➕ 상품 추가 (스캔)
-@app.get("/scan/{item_id}")
-def scan_item(item_id: int, db: Session = Depends(get_db)):
+@app.post("/cart/add/{item_id}")
+def add_item(item_id: int, db: Session = Depends(get_db)):
     global EXPECTED_WEIGHT, CART_ITEMS
 
     item = db.query(models.Item).filter(models.Item.id == item_id).first()
-    if item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
+    if not item:
+        raise HTTPException(404, "Item not found")
 
     CART_ITEMS.append({
         "id": item.id,
@@ -65,20 +66,19 @@ def scan_item(item_id: int, db: Session = Depends(get_db)):
 
     EXPECTED_WEIGHT += item.weight
 
-    real_weight = read_cart_weight()
-    movable = is_movable(EXPECTED_WEIGHT, real_weight)
-    diff = abs(real_weight - EXPECTED_WEIGHT)
+    real = read_cart_weight()
+    movable = is_movable(EXPECTED_WEIGHT, real)
 
     return {
         "action": "add",
         "item": item.name,
         "expected_weight": EXPECTED_WEIGHT,
-        "real_weight": real_weight,
-        "diff": diff,
+        "real_weight": real,
+        "diff": abs(real - EXPECTED_WEIGHT),
         "movable": movable
     }
 
-# ➖ 상품 제거 (UI)
+# ➖ 상품 제거
 @app.post("/cart/remove/{item_id}")
 def remove_item(item_id: int):
     global EXPECTED_WEIGHT, CART_ITEMS
@@ -116,6 +116,7 @@ def get_cart():
         "expected_weight": EXPECTED_WEIGHT
     }
 
+# ⚖️ 무게 체크
 @app.get("/cart/check")
 def check_cart():
     real = read_cart_weight()
@@ -129,59 +130,13 @@ def check_cart():
         "stop_type": "abnormal" if not movable else "none"
     }
 
-@app.post("/cart/add/{item_id}", response_model=models.CartScanResponse)
-def scan_item(item_id: int, db: Session = Depends(get_db)):
-    global EXPECTED_WEIGHT, CART_ITEMS
-
-    item = db.query(models.Item).filter(models.Item.id == item_id).first()
-    if not item:
-        raise HTTPException(404, "Item not found")
-
-    CART_ITEMS.append({
-        "id": item.id,
-        "name": item.name,
-        "price": item.price,
-        "weight": item.weight
-    })
-
-    EXPECTED_WEIGHT += item.weight
-
-    real = read_cart_weight()
-    movable = is_movable(EXPECTED_WEIGHT, real)
-
-    return {
-        "action": "add",
-        "item": item.name,
-        "expected_weight": EXPECTED_WEIGHT,
-        "real_weight": real,
-        "movable": movable
-    }
-
-@app.get("/cart/check-weight")
-def check_cart_weight(cart: CartWeightCheck):
-    real = read_cart_weight()
-    result = check_weight(cart.expected_weight, real)
-
-    result["stop_type"] = "abnormal" if not result["weight_ok"] else "none"
-    return result
-
+# 🔄 카트 초기화
 @app.post("/cart/reset")
 def reset_cart():
     global EXPECTED_WEIGHT, CART_ITEMS
     EXPECTED_WEIGHT = 0.0
     CART_ITEMS.clear()
     return {"ok": True}
-
-@app.on_event("startup")
-def reset_cart_on_startup():
-    db = database.SessionLocal()
-    cart = db.query(models.Cart).first()
-
-    if cart:
-        cart.expected_weight = 0
-        db.commit()
-
-    db.close()
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
