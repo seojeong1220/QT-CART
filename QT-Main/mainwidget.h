@@ -8,9 +8,11 @@
 #include "pagecart.h"
 #include "pageguide.h"
 #include "pagepay.h"
+#include "pagepay_card.h"
+#include "pagetotalpay.h"
 
 // 우분투 중계 서버
-#define ROS_SERVER_IP   "172.20.10.8"
+#define ROS_SERVER_IP   "192.168.123.43"
 #define ROS_SERVER_PORT 55555
 
 QT_BEGIN_NAMESPACE
@@ -22,7 +24,6 @@ QT_END_NAMESPACE
 class MainWidget : public QWidget
 {
     Q_OBJECT
-
 public:
     MainWidget(QWidget *parent = nullptr);
     ~MainWidget();
@@ -34,19 +35,31 @@ private:
     PageGuide *pPageGuide;
     PagePay *pPagePay;
     QUdpSocket *m_udpSocket;
+    QTimer *m_weightCheckTimer;
 
     // 모드 전송 함수 (0:정지, 1:따라가기, 2:안내)
     void sendRobotMode(int mode);
     void sendGoalCommand(double x, double y);
 
+    pagepay_card *pPageCard;
+    PageTotalPay *pPageTotalPay;
+    // rclcpp::Node::SharedPtr node_;
+    // rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub_;
+
+protected:
+    bool eventFilter(QObject *obj,QEvent *event) override;
 private slots:
     void on_pPBStartClicked();
     void slotShowCartPage();
     void slotShowGuidePage();
     void slotShowWelcomePage();
-    void slotShowPayPage();
-
-    void onPageChanged(int index);
     void onGoalRequested(double x, double y);
+    void onPageChanged(int index);
+    void slotShowPayCardPage();
+    void slotShowPayPage();
+    void slotShowTotalPayPage_2();
+
+
+
 };
 #endif // MAINWIDGET_H

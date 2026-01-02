@@ -9,6 +9,7 @@ import models, database
 import logging
 from datetime import datetime
 import dashboard
+from read_weight import read_cart_weight
 
 CART_ITEMS = []
 EXPECTED_WEIGHT = 0.0
@@ -61,7 +62,7 @@ async def inventory_view(): return FileResponse("templates/inventory.html")
 @app.post("/cart/tare")
 def tare_cart():
     global EXPECTED_WEIGHT
-    EXPECTED_WEIGHT = 0.0
+    EXPECTED_WEIGHT = read_cart_weight()
     return {
         "message": "Cart tared",
         "expected_weight": EXPECTED_WEIGHT
@@ -235,6 +236,12 @@ def check_bot_status():
         "battery": bot_state_store["battery"],
         "speed": bot_state_store["speed"]
     }
+
+@app.on_event("startup")
+def startup_event():
+    # 서버 재시작 시 상태 초기화
+    reset_cart()
+    print(">>> System Started: Cart Reset Done.")
 
 # --- 로그 필터 ---
 class EndpointFilter(logging.Filter):

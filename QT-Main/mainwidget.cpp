@@ -3,39 +3,60 @@
 #include "pagewelcome.h"
 #include "pagecart.h"
 #include "pagepay.h"
-
 #include <QDebug>
 #include <QtNetwork/QHostAddress>
-
+#include "pagepay_card.h"
+#include "pagetotalpay.h"
+#include <QTimer>
+#include <QApplication>
+#include <QEvent>
+#include <QKeyEvent>
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MainWidget)
 {
     ui->setupUi(this);
-
+    qApp->installEventFilter(this);
     m_udpSocket = new QUdpSocket(this);
 
     pPageWelcome = new PageWelcome(this);
-    pPageCart = new PageCart(this);
-    pPageGuide =  new PageGuide(this);
-    pPagePay = new PagePay(this);
+    pPageCart    = new PageCart(this);
+    pPageGuide   = new PageGuide(this);
+    pPagePay     = new PagePay(this);
+    pPageCard    = new pagepay_card(this);
+    pPageTotalPay = new PageTotalPay(this);
+    // stackedWidget register
 
     ui->pstackedWidget->addWidget(pPageWelcome);
     ui->pstackedWidget->addWidget(pPageCart);
     ui->pstackedWidget->addWidget(pPageGuide);
     ui->pstackedWidget->addWidget(pPagePay);
-
+    ui->pstackedWidget->addWidget(pPageCard);
+    ui->pstackedWidget->addWidget(pPageTotalPay);
     ui->pstackedWidget->setCurrentWidget(pPageWelcome);
 
+    connect(pPageWelcome, &PageWelcome::startRequested,
+            this, &MainWidget::slotShowCartPage);
+
+    connect(pPageGuide, SIGNAL(backToCartClicked()), this, SLOT(slotShowCartPage()));
     connect(ui->pstackedWidget, &QStackedWidget::currentChanged, this, &MainWidget::onPageChanged);
     connect(pPageGuide, &PageGuide::requestGoal, this, &MainWidget::onGoalRequested);
 
-    connect(pPageWelcome, SIGNAL(startClicked()), this, SLOT(on_pPBStartClicked()));
-    connect(pPageGuide, SIGNAL(backToCartClicked()), this, SLOT(slotShowCartPage()));
-    connect(pPageCart, SIGNAL(guideModeClicked()), this, SLOT(slotShowGuidePage()));
-    connect(pPageCart,SIGNAL(goWelcome()),this, SLOT(slotShowWelcomePage()));
+    connect(pPageCart,  SIGNAL(guideModeClicked()),  this, SLOT(slotShowGuidePage()));
     connect(pPageCart, SIGNAL(goPay()), this, SLOT(slotShowPayPage()));
-    connect(pPagePay, SIGNAL(backToCartClicked()), this, SLOT(slotShowCartPage()));
+    connect(pPageCart,  SIGNAL(goWelcome()),         this, SLOT(slotShowWelcomePage()));
+    connect(pPageTotalPay, &PageTotalPay::backToStartClicked,
+            this, &MainWidget::slotShowWelcomePage);
+
+    connect(pPagePay,   SIGNAL(creditCardClicked()), this, SLOT(slotShowPayCardPage()));
+    connect(pPagePay, SIGNAL(backCartClicked()), this, SLOT(slotShowCartPage()));
+    connect(pPagePay,   SIGNAL(backCartClicked()),   this, SLOT(slotShowCartPage()));
+
+    connect(pPageCard, SIGNAL(goTotalPayClicked()), this, SLOT(slotShowTotalPayPage_2()));
+    connect(pPageTotalPay, &PageTotalPay::backToStartClicked,
+            this, &MainWidget::slotShowWelcomePage);
+
+    onPageChanged(ui->pstackedWidget->currentIndex());
 }
 
 MainWidget::~MainWidget()
@@ -64,11 +85,14 @@ void MainWidget::onPageChanged(int index)
 
 void MainWidget::sendRobotMode(int mode)
 {
-    // 형식: "MODE:1"
     QString cmd = QString("MODE:%1").arg(mode);
     QByteArray data = cmd.toUtf8();
 
-    m_udpSocket->writeDatagram(data, QHostAddress(ROS_SERVER_IP), ROS_SERVER_PORT);
+    m_udpSocket->writeDatagram(
+        data,
+        QHostAddress(ROS_SERVER_IP),
+        ROS_SERVER_PORT
+    );
 }
 
 void MainWidget::onGoalRequested(double x, double y)
@@ -100,8 +124,52 @@ void MainWidget::slotShowCartPage()
 void MainWidget::slotShowWelcomePage()
 {
     ui->pstackedWidget->setCurrentWidget(pPageWelcome);
+    pPageCart->resetCart();
 }
 void MainWidget::slotShowPayPage()
 {
+// <<<<<<< HEAD
+//     ui->pstackedWidget->setCurrentWidget(pPagePay);
+// =======
+    auto cartLines = pPageCart->getCartLines();
+
+    // 2) PagePay 형식으로 변환해서 전달
+    QVector<PagePay::PayLine> payLines;
+    payLines.reserve(cartLines.size());
+
+    for (const auto &c : cartLines) {
+        PagePay::PayLine p;
+        p.name = c.name;
+        p.qty = c.qty;
+        p.unitPrice = c.unitPrice;
+        payLines.push_back(p);
+    }
+
+    // 3) Pay 페이지 테이블 갱신
+    pPagePay->setPayItems(payLines);
+
+    // 4) 페이지 이동
     ui->pstackedWidget->setCurrentWidget(pPagePay);
+
+}
+void MainWidget::slotShowPayCardPage()
+{
+    ui->pstackedWidget->setCurrentWidget(pPageCard);
+}
+
+
+void MainWidget::slotShowTotalPayPage_2()
+{
+    ui->pstackedWidget->setCurrentWidget(pPageTotalPay);
+}
+bool MainWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress) {
+        auto *ke = static_cast<QKeyEvent*>(event);
+        if (ke->key() == Qt::Key_F12) {
+            qApp->quit();         // ✅ 프로그램 종료
+            return true;          // 이벤트 먹기(다른 곳으로 안 넘어감)
+        }
+    }
+    return QWidget::eventFilter(obj, event);
 }

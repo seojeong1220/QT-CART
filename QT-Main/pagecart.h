@@ -20,6 +20,7 @@ class PageCart;
  *  장바구니 아이템 구조체
  * ======================= */
 struct ItemInfo {
+    int id;  
     QString name;
     int price;
     double weight;
@@ -33,13 +34,28 @@ public:
     explicit PageCart(QWidget *parent = nullptr);
     ~PageCart();
 
+    struct CartLine {
+        QString name;
+        int qty;
+        int unitPrice;
+    };
+
+    QVector<CartLine> getCartLines() const;
+
+
+
+    BarcodeScanner* scanner() const { return m_scanner; }
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
-
+public slots:
+    void resetCart();
 signals:
     void guideModeClicked();
     void goWelcome();
     void goPay();
+    void payClicked();
+
 
 private slots:
     void onPlusClicked();
@@ -47,42 +63,54 @@ private slots:
     void onDeleteClicked();
     void onBarcodeEntered();
 
+    // BarcodeScanner 시그널(너 헤더에 있는 버전 유지)
     void handleItemFetched(const Item &item, double cartWeight);
     void handleFetchFailed(const QString &err);
+    void on_pushButton_clicked();    // clear cart 버튼(pushButton)
+    void on_btnCheckout_clicked();
+    void on_btnGuide_clicked();
+    void requestCartWeightOnly();
 
-    void on_btnGuideMode_clicked();
-    void on_pushButton_clicked();
-    void on_btnPay_clicked();
 
 private:
-    /* UI */
     Ui::PageCart *ui;
-    QPixmap m_cartPixmap;
-    void addItemByScan(const Item &item);
-    void updateExpectedWeightByScan(double itemWeight);
-    bool checkWeightOrStop(double cartWeight);
+    bool m_weightFail = false;
     /* Cart Data */
-    QVector<ItemInfo> m_items;     // ✅ 반드시 필요
+    QVector<ItemInfo> m_items;
     QVector<int> m_unitPrice;
-
-    double m_expectedWeight = 0.0;
     const double m_tolerance = 30.0;
 
     /* Barcode */
-    QLineEdit *m_editBarcode;
+    QLineEdit *m_editBarcode = nullptr;
     QString m_barcodeData;
-    BarcodeScanner *m_scanner;
+    BarcodeScanner *m_scanner = nullptr;
+    
+    bool m_isStopped = false;
 
+    QTimer* m_weightRetryTimer = nullptr;
+    double  m_expectedWeight = 0.0; 
+    
     /* Network */
-    QUdpSocket *m_udpSocket;
+    QUdpSocket *m_udpSocket = nullptr;
 
     /* Internal */
     void initDummyItems();
+    void refreshCartFromServer(const QJsonObject& cart);
+
+    void addRowForItem(const QString& name, int unitPrice, int qty);
     void updateRowAmount(int row);
     void updateTotal();
 
     /* Robot control */
-    void sendRobotMode(int mode);  // ✅ 핵심
+    void sendRobotMode(int mode);
+
+    /* Weight helpers */
+    void addItemByScan(const Item &item);
+    void updateExpectedWeightByScan(double itemWeight);
+    void checkWeightOrStop(double realWeight);
+    void requestCheckWeightBeforeRun();
+    
+
 };
 
 #endif // PAGECART_H

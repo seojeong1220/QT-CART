@@ -58,6 +58,15 @@ class PaySchema(BaseModel):
     class Config:
         from_attributes = True
 
+class CartScanResponse(BaseModel):
+    item: ItemSchema
+    cart_weight: float
+    expected_weight: float
+    weight_ok: bool
+    diff: float
+    
+    allowed: float
+
 # 무게 검증 응답 
 class CartScanResponse(BaseModel):
     item: ItemSchema        # 스캔된 상품 정보

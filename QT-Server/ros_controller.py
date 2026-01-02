@@ -7,6 +7,7 @@ from sensor_msgs.msg import BatteryState
 from nav_msgs.msg import Odometry         
 import socket
 import requests
+import threading 
 
 UDP_PORT_QT = 55555
 UDP_PORT_UWB = 44444
@@ -18,7 +19,7 @@ class RosController(Node):
     def __init__(self):
         super().__init__('ros_controller_node')
         
-        # ROS 2 퍼블리셔 
+        # TwistStamped 타입 사용
         self.cmd_vel_pub = self.create_publisher(TwistStamped, '/cmd_vel', 10)
         
         # 실제 배터리 정보 구독
@@ -40,11 +41,15 @@ class RosController(Node):
         # 네비게이션 액션 클라이언트 생성
         self.nav_to_pose_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
         
-        # UDP 소켓 설정
+        # Nav2 액션 클라이언트
+        self.nav_to_pose_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        
+        # UDP 소켓
         self.sock_qt = self.create_udp_socket(UDP_PORT_QT)
         self.sock_uwb = self.create_udp_socket(UDP_PORT_UWB)
 
-        self.current_mode = 0
+        # 상태 변수 
+        self.current_mode = 2
         self.uwb_L = 0.0
         self.uwb_R = 0.0
         self.nav_goal_handle = None # 현재 진행 중인 네비게이션 핸들
@@ -53,7 +58,7 @@ class RosController(Node):
         self.battery_level = 0.0
         self.current_speed = 0.0
 
-        # 20Hz 주기로 제어 루프 실행
+        #  20Hz (0.05s)
         self.create_timer(0.05, self.control_loop)
         self.get_logger().info("ROS Controller Started!")
 
@@ -67,6 +72,11 @@ class RosController(Node):
     # 오도메트리(속도) 콜백 함수
     def odom_callback(self, msg):
         self.current_speed = msg.twist.twist.linear.x
+
+    def trigger_status_thread(self):
+        thread = threading.Thread(target=self.send_bot_status)
+        thread.daemon = True # 프로그램 종료 시 같이 종료됨
+        thread.start()
 
     def send_bot_status(self):
         try:
@@ -86,6 +96,7 @@ class RosController(Node):
         sock.setblocking(False) 
         return sock
 
+    # --- 메인 제어 루프 ---
     def control_loop(self):
         self.receive_uwb_data()
         self.receive_qt_command()
@@ -94,17 +105,23 @@ class RosController(Node):
 
         msg = TwistStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'
+        msg.header.frame_id = 'base_link' 
         
         if self.current_mode == 0:
+            # 대기 모드: 정지 명령 지속 발행 (밀림 방지)
+            msg.twist.linear.x = 0.0
+            msg.twist.angular.z = 0.0
             self.cmd_vel_pub.publish(msg)
             
-        elif self.current_mode == 1:   # 안내 모드
+        elif self.current_mode == 1:   # 안내 모드 (UWB 추종)
+            # 자율주행 중이었다면 취소
             if self.nav_goal_handle:
                 self.cancel_navigation()
-            self.process_follow_mode(msg)
+                
+            self.process_follow_mode(msg) # msg 내부 데이터를 채움
+            self.cmd_vel_pub.publish(msg) # 발행
             
-        elif self.current_mode == 2:   # 자율주행 모드
+        elif self.current_mode == 2:   # 자율주행 모드 (Nav2)
             pass
 
     def filter_uwb_value(self, current_val, new_val):
@@ -132,11 +149,16 @@ class RosController(Node):
             while True:
                 data, _ = self.sock_qt.recvfrom(BUFFER_SIZE)
                 text = data.decode('utf-8').strip()
+                
+                # 모드 변경 명령
                 if text.startswith("MODE:"):
                     self.change_mode(int(text.split(":")[1]))
+                
+                # 네비게이션 목표 명령 (예: GOAL:1.5,2.0)
                 elif text.startswith("GOAL:"):
                     parts = text.split(":")[1].split(",")
                     self.start_navigation(float(parts[0]), float(parts[1]))
+                    
         except (BlockingIOError, socket.error): pass
 
     def change_mode(self, new_mode):
@@ -202,8 +224,10 @@ class RosController(Node):
 
     def process_follow_mode(self, msg):
         l, r = self.uwb_L, self.uwb_R
+
         if l <= 0.01 or r <= 0.01:
             self.cmd_vel_pub.publish(msg); return
+        
         avg = (l + r) / 2.0
         diff = r - l 
         is_stopping = False
