@@ -167,8 +167,6 @@ class RosController(Node):
         result = future.result().result
         self.get_logger().info(f'Navigation Result: {result}')
         self.nav_goal_handle = None 
-        # 도착하면 대기 모드(0)로 전환
-        self.change_mode(0)
 
     def cancel_navigation(self):
         if self.nav_goal_handle:
