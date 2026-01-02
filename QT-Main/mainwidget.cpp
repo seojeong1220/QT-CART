@@ -7,6 +7,7 @@
 #include <QtNetwork/QHostAddress>
 #include "pagepay_card.h"
 #include "pagetotalpay.h"
+#include <QTimer>
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
@@ -35,8 +36,9 @@ MainWidget::MainWidget(QWidget *parent)
     connect(pPageWelcome, &PageWelcome::startRequested,
             this, &MainWidget::slotShowCartPage);
 
-    // 나머지 기존 연결들 그대로
     connect(pPageGuide, SIGNAL(backToCartClicked()), this, SLOT(slotShowCartPage()));
+    connect(ui->pstackedWidget, &QStackedWidget::currentChanged, this, &MainWidget::onPageChanged);
+    connect(pPageGuide, &PageGuide::requestGoal, this, &MainWidget::onGoalRequested);
 
     connect(pPageCart,  SIGNAL(guideModeClicked()),  this, SLOT(slotShowGuidePage()));
     connect(pPageCart, SIGNAL(goPay()), this, SLOT(slotShowPayPage()));
@@ -51,6 +53,8 @@ MainWidget::MainWidget(QWidget *parent)
     connect(pPageCard, SIGNAL(goTotalPayClicked()), this, SLOT(slotShowTotalPayPage_2()));
     connect(pPageTotalPay, &PageTotalPay::backToStartClicked,
             this, &MainWidget::slotShowWelcomePage);
+
+    onPageChanged(ui->pstackedWidget->currentIndex());
 }
 
 MainWidget::~MainWidget()
@@ -79,11 +83,14 @@ void MainWidget::onPageChanged(int index)
 
 void MainWidget::sendRobotMode(int mode)
 {
-    // 형식: "MODE:1"
     QString cmd = QString("MODE:%1").arg(mode);
     QByteArray data = cmd.toUtf8();
 
-    m_udpSocket->writeDatagram(data, QHostAddress(ROS_SERVER_IP), ROS_SERVER_PORT);
+    m_udpSocket->writeDatagram(
+        data,
+        QHostAddress(ROS_SERVER_IP),
+        ROS_SERVER_PORT
+    );
 }
 
 void MainWidget::onGoalRequested(double x, double y)

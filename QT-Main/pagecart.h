@@ -20,6 +20,7 @@ class PageCart;
  *  장바구니 아이템 구조체
  * ======================= */
 struct ItemInfo {
+    int id;  
     QString name;
     int price;
     double weight;
@@ -42,6 +43,8 @@ public:
     QVector<CartLine> getCartLines() const;
 
 
+
+    BarcodeScanner* scanner() const { return m_scanner; }
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -66,28 +69,34 @@ private slots:
     void on_pushButton_clicked();    // clear cart 버튼(pushButton)
     void on_btnCheckout_clicked();
     void on_btnGuide_clicked();
+    void requestCartWeightOnly();
 
 
 private:
     Ui::PageCart *ui;
-
+    bool m_weightFail = false;
     /* Cart Data */
     QVector<ItemInfo> m_items;
     QVector<int> m_unitPrice;
-
-    double m_expectedWeight = 0.0;
     const double m_tolerance = 30.0;
 
     /* Barcode */
     QLineEdit *m_editBarcode = nullptr;
     QString m_barcodeData;
     BarcodeScanner *m_scanner = nullptr;
+    
+    bool m_isStopped = false;
 
+    QTimer* m_weightRetryTimer = nullptr;
+    double  m_expectedWeight = 0.0; 
+    
     /* Network */
     QUdpSocket *m_udpSocket = nullptr;
 
     /* Internal */
     void initDummyItems();
+    void refreshCartFromServer(const QJsonObject& cart);
+
     void addRowForItem(const QString& name, int unitPrice, int qty);
     void updateRowAmount(int row);
     void updateTotal();
@@ -98,7 +107,10 @@ private:
     /* Weight helpers */
     void addItemByScan(const Item &item);
     void updateExpectedWeightByScan(double itemWeight);
-    bool checkWeightOrStop(double cartWeight);
+    void checkWeightOrStop(double realWeight);
+    void requestCheckWeightBeforeRun();
+    
+
 };
 
 #endif // PAGECART_H
