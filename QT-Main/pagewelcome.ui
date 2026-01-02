@@ -102,10 +102,13 @@
       <property name="geometry">
        <rect>
         <x>260</x>
-        <y>250</y>
-        <width>306</width>
+        <y>260</y>
+        <width>311</width>
         <height>77</height>
        </rect>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LayoutDirection::LeftToRight</enum>
       </property>
       <property name="styleSheet">
        <string notr="true">font: 700 40pt &quot;Ria Sans&quot;;

@@ -35,6 +35,7 @@ private slots:
     void onPayClicked();
     void onbtnphoneClicked();
 
+
 private:
     Ui::PageGuide *ui;
     void applyTreePixmap();
