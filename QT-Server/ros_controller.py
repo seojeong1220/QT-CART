@@ -2,12 +2,17 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
 from geometry_msgs.msg import Twist, TwistStamped, PoseStamped 
-from nav2_msgs.action import NavigateToPose  
+from nav2_msgs.action import NavigateToPose
+from sensor_msgs.msg import BatteryState  
+from nav_msgs.msg import Odometry         
 import socket
+import requests
 
 UDP_PORT_QT = 55555
 UDP_PORT_UWB = 44444
 BUFFER_SIZE = 1024
+
+API_URL = "http://localhost:8000/dashboard/bot/report"
 
 class RosController(Node):
     def __init__(self):
@@ -15,6 +20,22 @@ class RosController(Node):
         
         # ROS 2 퍼블리셔 
         self.cmd_vel_pub = self.create_publisher(TwistStamped, '/cmd_vel', 10)
+        
+        # 실제 배터리 정보 구독
+        self.battery_sub = self.create_subscription(
+            BatteryState,
+            '/battery_state',
+            self.battery_callback,
+            10
+        )
+
+        # 실제 주행 속도 확인을 위한 오도메트리 구독
+        self.odom_sub = self.create_subscription(
+            Odometry,
+            '/odom',
+            self.odom_callback,
+            10
+        )
         
         # 네비게이션 액션 클라이언트 생성
         self.nav_to_pose_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
@@ -28,9 +49,36 @@ class RosController(Node):
         self.uwb_R = 0.0
         self.nav_goal_handle = None # 현재 진행 중인 네비게이션 핸들
 
+        # 센서 데이터 저장 변수
+        self.battery_level = 0.0
+        self.current_speed = 0.0
+
         # 20Hz 주기로 제어 루프 실행
         self.create_timer(0.05, self.control_loop)
-        self.get_logger().info("ROS Controller Started! (Waiting for Nav2...)")
+        self.get_logger().info("ROS Controller Started!")
+
+        self.create_timer(1.0, self.send_bot_status) 
+
+    # 배터리 상태 콜백 함수
+    def battery_callback(self, msg):
+        if msg.percentage >= 0:
+            self.battery_level = msg.percentage * 100.0
+
+    # 오도메트리(속도) 콜백 함수
+    def odom_callback(self, msg):
+        self.current_speed = msg.twist.twist.linear.x
+
+    def send_bot_status(self):
+        try:
+            # 실제 수신한 배터리와 속도 데이터를 전송
+            payload = {
+                "status": "ONLINE",
+                "battery": round(self.battery_level, 1),
+                "speed": round(self.current_speed, 2)
+            }
+            requests.post(API_URL, json=payload, timeout=0.2)
+        except:
+            pass
 
     def create_udp_socket(self, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -101,7 +149,7 @@ class RosController(Node):
             
         self.current_mode = new_mode
 
-    # 네비게이션 (Action Client 사용)
+    # 네비게이션 Action Client
     def start_navigation(self, x, y):
         if self.current_mode != 2: 
             self.current_mode = 2
