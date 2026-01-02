@@ -34,7 +34,7 @@ private slots:
     void onSnackClicked();
     void onPayClicked();
     void onbtnphoneClicked();
-    void onbtnpayClicked();
+
 
 private:
     Ui::PageGuide *ui;

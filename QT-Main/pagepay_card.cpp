@@ -9,7 +9,6 @@
 #include <QStackedWidget>
 #include <QTimer>
 #include <QShowEvent>
-#include <QResizeEvent>
 #include <QPainter>
 #include <QFont>
 #include <QSharedPointer>
@@ -20,7 +19,6 @@ static QPixmap textToPixmap(const QString &text, int fontPx)
     QFont f;
     f.setPixelSize(fontPx);
 
-    // 넉넉한 캔버스
     const int size = fontPx * 2;
     QPixmap pm(size, size);
     pm.fill(Qt::transparent);
@@ -77,35 +75,33 @@ void pagepay_card::showEvent(QShowEvent *e)
 
 void pagepay_card::showPaymentModal()
 {
-    QWidget *overlayParent = this->window();
-    if (!overlayParent) overlayParent = this;
+    QWidget *parentW = this->window();
+    if (!parentW) parentW = this;
 
-    // ✅ 프레임리스/모달 다이얼로그
-    QDialog *dlg = new QDialog(overlayParent);
-    dlg->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+    // ✅ 팝업 자체를 카드 크기로만 만들기 (전체 덮지 않음)
+    QDialog *dlg = new QDialog(parentW);
+    dlg->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     dlg->setModal(true);
-    dlg->setAttribute(Qt::WA_TranslucentBackground);
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->setFixedSize(520, 260);
 
-    // ✅ 부모창 덮기
-    QPoint topLeft = overlayParent->mapToGlobal(QPoint(0, 0));
-    dlg->setGeometry(QRect(topLeft, overlayParent->size()));
+    // ✅ 부모(800x480) 기준 "정중앙" 위치
+    const int x = (parentW->width()  - dlg->width())  / 2;
+    const int y = (parentW->height() - dlg->height()) / 2;
+    dlg->move(x, y);
 
-    // ===== 배경(반투명) =====
-    QFrame *bg = new QFrame(dlg);
-    bg->setStyleSheet("QFrame { background-color: rgba(0,0,0,128); }");
-    bg->setGeometry(dlg->rect());
+    // ===== 다이얼로그 루트 레이아웃 =====
+    auto *dlgLay = new QVBoxLayout(dlg);
+    dlgLay->setContentsMargins(0,0,0,0);
+    dlgLay->setSpacing(0);
 
-    QVBoxLayout *rootLay = new QVBoxLayout(bg);
-    rootLay->setContentsMargins(0,0,0,0);
-
-    // ===== 카드 =====
-    QFrame *card = new QFrame(bg);
-    card->setFixedSize(420, 360);
-    card->setStyleSheet("QFrame { background: white; border-radius: 16px; }");
-
-    rootLay->addStretch();
-    rootLay->addWidget(card, 0, Qt::AlignHCenter);
-    rootLay->addStretch();
+    // ===== 카드 프레임 (둥근 모서리) =====
+    QFrame *card = new QFrame(dlg);
+    card->setObjectName("card");
+    card->setStyleSheet(
+        "#card { background: white; border-radius: 16px; }"
+        );
+    dlgLay->addWidget(card);
 
     // ===== 카드 내부 스택 =====
     QStackedWidget *stack = new QStackedWidget(card);
@@ -123,7 +119,6 @@ void pagepay_card::showPaymentModal()
     spinner->setAlignment(Qt::AlignCenter);
     spinner->setStyleSheet("background: transparent;");
 
-    // ⏳를 Pixmap으로 만들고 회전시킬 준비
     const QPixmap baseHourglass = textToPixmap("⏳", 52);
     spinner->setPixmap(baseHourglass);
 
@@ -162,7 +157,6 @@ void pagepay_card::showPaymentModal()
 
     QPushButton *btnOk = new QPushButton("확인", wDone);
     btnOk->setFixedHeight(44);
-    // ✅ 가로 늘리고 싶으면 여기만 조절
     btnOk->setFixedWidth(180);
     btnOk->setStyleSheet(
         "QPushButton{background:#2563EB;color:white;border:none;border-radius:12px;font-size:16px;font-weight:800; padding: 0 18px;}"
@@ -180,17 +174,16 @@ void pagepay_card::showPaymentModal()
     stack->addWidget(wDone);
     stack->setCurrentWidget(wProc);
 
-    // ===== (A) ⏳ 회전 타이머 (60fps) =====
+    // ===== (A) ⏳ 회전 타이머 (느리게) =====
     auto angle = QSharedPointer<qreal>::create(0.0);
     QTimer *spinTimer = new QTimer(dlg);
-    spinTimer->setInterval(16); // ~60fps
+    spinTimer->setInterval(30); // ✅ 16ms(빠름) -> 30ms(느리게)
 
     QObject::connect(spinTimer, &QTimer::timeout, dlg, [=]() mutable {
-        *angle += 4.0;              // 속도 (값 키우면 더 빨라짐)
+        *angle += 2.0;              // ✅ 4.0(빠름) -> 2.0(느리게)
         if (*angle >= 360.0) *angle -= 360.0;
         spinner->setPixmap(rotatedPixmap(baseHourglass, *angle));
     });
-
     spinTimer->start();
 
     // ===== (B) 5초 카운트다운 =====
@@ -204,12 +197,11 @@ void pagepay_card::showPaymentModal()
 
         if (*count <= 0) {
             t->stop();
-            spinTimer->stop();              // ✅ 완료되면 회전도 정지
+            spinTimer->stop();
             stack->setCurrentWidget(wDone);
         }
     });
 
-    // ===== 확인 누르면 totalpay로 =====
     QObject::connect(btnOk, &QPushButton::clicked, dlg, [this, dlg]() {
         dlg->accept();
         emit goTotalPayClicked();
@@ -219,7 +211,3 @@ void pagepay_card::showPaymentModal()
     dlg->exec();
 }
 
-void pagepay_card::resizeEvent(QResizeEvent *e)
-{
-    QWidget::resizeEvent(e);
-}

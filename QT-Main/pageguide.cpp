@@ -113,38 +113,45 @@ void PageGuide::onPayClicked()
     qDebug() << "Region2 Icon Clicked";
     emit requestGoal(0.0, 1.0);
 }
+#include <QGraphicsDropShadowEffect>
+
 void PageGuide::showMovePopup(const QString &zoneText)
 {
-    QWidget *overlayParent = this->window();
-    if (!overlayParent) overlayParent = this;
+    QWidget *parentW = this->window();   // ✅ 800x480 메인 창 기준
+    if (!parentW) parentW = this;
 
-    // ✅ 프레임리스 모달 다이얼로그(전체 화면 덮기)
-    QDialog *dlg = new QDialog(overlayParent);
-    dlg->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-    dlg->setModal(true);
-    dlg->setAttribute(Qt::WA_TranslucentBackground);
+    // ✅ 카드 크기만 가진 프레임리스 모달 다이얼로그
+    QDialog dlg(parentW);
+    dlg.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+    dlg.setModal(true);
+    dlg.setStyleSheet("QDialog { background: transparent; }");
+    dlg.setFixedSize(520, 260); // 카드 팝업 크기(원하면 조절)
 
-    // 부모 창 크기 그대로 덮기
-    dlg->setGeometry(overlayParent->rect());
+    // ✅ 부모(800x480) 기준 "정중앙"으로 이동 (글로벌 좌표로)
+    const QPoint parentTopLeft = parentW->mapToGlobal(QPoint(0, 0));
+    const int x = parentTopLeft.x() + (parentW->width()  - dlg.width())  / 2;
+    const int y = parentTopLeft.y() + (parentW->height() - dlg.height()) / 2;
+    dlg.move(x, y);
 
-    // ✅ 반투명 배경
-    QFrame *bg = new QFrame(dlg);
-    bg->setGeometry(dlg->rect());
-    bg->setStyleSheet("QFrame{ background-color: rgba(0,0,0,140); }");
-
-    QVBoxLayout *root = new QVBoxLayout(bg);
-    root->setContentsMargins(0,0,0,0);
-
-    // ✅ 가운데 카드
-    QFrame *card = new QFrame(bg);
-    card->setFixedSize(520, 320);
+    // ✅ 카드 프레임 (팝업 배경)
+    QFrame *card = new QFrame(&dlg);
+    card->setObjectName("popupCard");
     card->setStyleSheet(
-        "QFrame{ background:white; border-radius:16px; }"
+        "#popupCard { background: rgb(246, 245, 244);; border-radius: 16px; }"
+
         );
 
-    root->addStretch();
-    root->addWidget(card, 0, Qt::AlignHCenter);
-    root->addStretch();
+    // ✅ 그림자(선택)
+    auto *shadow = new QGraphicsDropShadowEffect(card);
+    shadow->setBlurRadius(30);
+    shadow->setOffset(0, 8);
+    shadow->setColor(QColor(0, 0, 0, 80));
+    card->setGraphicsEffect(shadow);
+
+    // ✅ 레이아웃
+    QVBoxLayout *root = new QVBoxLayout(&dlg);
+    root->setContentsMargins(0, 0, 0, 0);
+    root->addWidget(card);
 
     QVBoxLayout *lay = new QVBoxLayout(card);
     lay->setContentsMargins(28, 24, 28, 24);
@@ -160,6 +167,7 @@ void PageGuide::showMovePopup(const QString &zoneText)
 
     QPushButton *ok = new QPushButton("확인", card);
     ok->setFixedHeight(48);
+    ok->setMinimumWidth(220); // ✅ 버튼 가로 넓이
     ok->setStyleSheet(
         "QPushButton{ background:#2563EB; color:white; border:none; border-radius:12px; "
         "font-size:18px; font-weight:900; padding:8px 18px; }"
@@ -174,9 +182,8 @@ void PageGuide::showMovePopup(const QString &zoneText)
     lay->addWidget(ok, 0, Qt::AlignHCenter);
     lay->addStretch();
 
-    connect(ok, &QPushButton::clicked, dlg, &QDialog::accept);
+    QObject::connect(ok, &QPushButton::clicked, &dlg, &QDialog::accept);
 
-    // ✅ 실행
-    dlg->exec();
-    dlg->deleteLater();
+    dlg.exec();
 }
+
