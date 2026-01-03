@@ -17,6 +17,12 @@
 
 #define SERVER_BASE_URL "http://192.168.123.43:8000"
 
+static QString moneyKR(qint64 v)
+{
+    const QLocale loc(QLocale::Korean, QLocale::SouthKorea);
+    return loc.toString(v) + "원";
+}
+
 static QString imageForName(const QString& name)
 {
     if (name == "아이폰")   return ":/item/cart_iphone.jpg";
@@ -230,7 +236,7 @@ void PageCart::addRowForItem(const QString& name, int unitPrice, int qty)
     connect(btnMinus, SIGNAL(clicked()), this, SLOT(onMinusClicked()));
 
     // (5) 가격(금액)
-    QTableWidgetItem *priceItem = new QTableWidgetItem("0");
+    QTableWidgetItem *priceItem = new QTableWidgetItem(moneyKR(0));
     priceItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
     ui->tableCart->setItem(row, 5, priceItem);
 
@@ -374,7 +380,7 @@ void PageCart::updateRowAmount(int row)
     int qty = ui->tableCart->item(row, 3)->text().toInt();
     int amount = m_unitPrice[row] * qty;
 
-    ui->tableCart->item(row, 5)->setText(QString::number(amount));
+    ui->tableCart->item(row, 5)->setText(moneyKR(amount));
 }
 
 // ----------------------------------------
@@ -401,9 +407,7 @@ void PageCart::updateTotal()
 
     // ✅ (A) "총 금액" 표시 (너가 말한 lblTotalPrice_2)
     if (ui->lblTotalPrice_2)
-        ui->lblTotalPrice_2->setText(QString::number(totalPrice) + "원");
-
-
+        ui->lblTotalPrice_2->setText(moneyKR(totalPrice));
 
     // ✅ Cart (n products)
     if (ui->lblCartTitle)
