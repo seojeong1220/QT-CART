@@ -54,7 +54,7 @@ async function updateDashboard() {
             
             // 배터리 & 속도
             c1.battery = parseInt(botData.battery);
-            c1.speed = botData.speed.toFixed(1);
+            c1.speed = Math.abs(Math.round(botData.speed * 100));
             
             if(cartData) {
                 // 무게 & 아이템
@@ -102,9 +102,7 @@ function updateMockData(id) {
     
     // 배터리 랜덤 감소
     if(Math.random() > 0.98) c.battery = Math.max(0, c.battery - 1);
-    
-    // 속도 변화
-    if(Math.random() > 0.7) c.speed = (Math.random() * 1.2).toFixed(1);
+    if(Math.random() > 0.7) c.speed = Math.floor(Math.random() * 120);
     else c.speed = 0.0;
 }
 
@@ -132,7 +130,7 @@ function renderGrid() {
         }
         
         // 속도 표시 로직
-        const speedDisplay = data.isOnline ? `${data.speed} m/s` : '--';
+        const speedDisplay = data.isOnline ? `${data.speed} cm/s` : '--';
 
         const html = `
         <div class="cart-summary-card ${isSelected}" onclick="selectCart(${i})">

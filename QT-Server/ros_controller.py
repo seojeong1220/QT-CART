@@ -67,7 +67,7 @@ class RosController(Node):
     # 배터리 상태 콜백 함수
     def battery_callback(self, msg):
         if msg.percentage >= 0:
-            self.battery_level = msg.percentage * 100.0
+            self.battery_level = int(msg.percentage)
 
     # 오도메트리(속도) 콜백 함수
     def odom_callback(self, msg):
