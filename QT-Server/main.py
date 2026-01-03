@@ -20,10 +20,6 @@ models.Base.metadata.create_all(bind=database.engine)
 app.include_router(dashboard.router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 무게 측정 함수 
-def read_cart_weight():
-    return 300.0  
-
 def get_db():
     db = database.SessionLocal()
     try: yield db
