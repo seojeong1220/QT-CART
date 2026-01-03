@@ -19,7 +19,6 @@
 
 #include "item.h"
 #include "barcodescanner.h"
-#include "carttypes.h"
 
 namespace Ui {
 class PageCart;
@@ -29,7 +28,7 @@ class PageCart;
  * 장바구니 아이템 구조체
  * ======================= */
 struct ItemInfo {
-    int id;
+    int id;  
     QString name;
     int price;
     double weight;

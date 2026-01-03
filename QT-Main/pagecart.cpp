@@ -260,8 +260,9 @@ void PageCart::addRowForItem(const QString& name, int unitPrice, int qty)
 // ----------------------------------------
 // + 버튼
 // ----------------------------------------
-void PageCart::onPlusClicked() {
-    auto *btn = qobject_cast<QPushButton*>(sender());
+void PageCart::onPlusClicked()
+{
+    QPushButton *btn = qobject_cast<QPushButton*>(sender());
     if (!btn) return;
 
     int row = findRowByButton(ui->tableCart, 2, btn);
@@ -295,8 +296,9 @@ void PageCart::onPlusClicked() {
 // ----------------------------------------
 // - 버튼
 // ----------------------------------------
-void PageCart::onMinusClicked() {
-    auto *btn = qobject_cast<QPushButton*>(sender());
+void PageCart::onMinusClicked()
+{
+    QPushButton *btn = qobject_cast<QPushButton*>(sender());
     if (!btn) return;
 
     int row = findRowByButton(ui->tableCart, 4, btn);
@@ -327,8 +329,9 @@ void PageCart::onMinusClicked() {
 // ----------------------------------------
 // X 삭제 버튼
 // ----------------------------------------
-void PageCart::onDeleteClicked() {
-    auto *btn = qobject_cast<QPushButton*>(sender());
+void PageCart::onDeleteClicked()
+{
+    QPushButton *btn = qobject_cast<QPushButton*>(sender());
     if (!btn) return;
 
     int row = findRowByButton(ui->tableCart, 6, btn);
@@ -336,7 +339,6 @@ void PageCart::onDeleteClicked() {
 
     int itemId = m_items[row].id;
     int qty = ui->tableCart->item(row, 3)->text().toInt();
-    if (itemId <= 0 || qty <= 0) return;
 
     // 1. [수정] 서버 전송
     // 서버 DB와 동기화하기 위해 현재 수량만큼 remove 요청을 보냅니다.
