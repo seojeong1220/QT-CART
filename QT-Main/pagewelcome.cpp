@@ -61,9 +61,6 @@ void PageWelcome::loadPixmapsOnce()
     QPixmap cartPx(":/etc/cart.png");
     QPixmap windPx(":/etc/wind.png");
 
-    qDebug() << "[cartPx isNull?]" << cartPx.isNull();
-    qDebug() << "[windPx isNull?]" << windPx.isNull();
-
     if (ui->cart_image) {
         ui->cart_image->setPixmap(cartPx);
         ui->cart_image->setScaledContents(true);
@@ -85,7 +82,6 @@ void PageWelcome::showEvent(QShowEvent *e)
 {
     QWidget::showEvent(e);
 
-    // ✅ 다른 페이지 갔다가 다시 돌아왔을 때: 항상 초기화
     QTimer::singleShot(0, this, [this]() {
         resetWelcome();
     });
