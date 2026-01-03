@@ -72,7 +72,9 @@ def add_item(item_id: int, db: Session = Depends(get_db)):
 
     return {
         "action": "add",
+        "id": item.id,          # <--- 추가됨
         "item": item.name,
+        "price": item.price,    # <--- 추가됨 (DB 가격 전달)
         "expected_weight": EXPECTED_WEIGHT,
         "real_weight": real,
         "diff": abs(real - EXPECTED_WEIGHT),
@@ -99,7 +101,9 @@ def remove_item(item_id: int):
 
     return {
         "action": "remove",
+        "id": removed["id"],       # <--- 추가됨
         "item": removed["name"],
+        "price": removed["price"], # <--- 추가됨
         "expected_weight": EXPECTED_WEIGHT,
         "real_weight": real,
         "movable": movable
@@ -127,8 +131,7 @@ def check_cart():
         "expected_weight": EXPECTED_WEIGHT,
         "real_weight": real,
         "diff": abs(real - EXPECTED_WEIGHT),
-        "movable": movable,
-        "stop_type": "abnormal" if not movable else "none"
+        "movable": movable
     }
 
 # 대시보드 상태 조회
