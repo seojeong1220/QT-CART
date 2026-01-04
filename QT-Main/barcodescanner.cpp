@@ -13,42 +13,41 @@ BarcodeScanner::BarcodeScanner(QObject *parent)
             this, &BarcodeScanner::onNetworkReply);
 }
 
-// -------------------------------------------------
-// 상품 추가 (스캔)
-// -------------------------------------------------
+void BarcodeScanner::setApiBaseUrl(const QString &ip, int port)
+{
+    m_apiBaseUrl = QString("http://%1:%2").arg(ip).arg(port);
+}
+
+// 상품 추가
 void BarcodeScanner::fetchItemDetails(const QString& itemId)
 {
-    // 서버 주소 확인
-    QUrl url(QString("http://192.168.123.43:8000/cart/add/%1").arg(itemId));
+    QString path = QString("%1/cart/add/%2").arg(m_apiBaseUrl).arg(itemId);
+    QUrl url(path);
+    
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     
-    // POST 요청
     manager->post(request, QByteArray());
-
-    qDebug() << "[Scanner] Requesting ADD Item ID:" << itemId;
+    qDebug() << "[Scanner] Requesting ADD:" << url.toString();
 }
 
-// -------------------------------------------------
 // 상품 제거
-// -------------------------------------------------
 void BarcodeScanner::removeItem(int itemId)
 {
-    QUrl url(QString("http://192.168.123.43:8000/cart/remove/%1").arg(itemId));
+    QString path = QString("%1/cart/remove/%2").arg(m_apiBaseUrl).arg(itemId);
+    QUrl url(path);
+    
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     manager->post(request, QByteArray());
-
-    qDebug() << "[Scanner] Requesting REMOVE Item ID:" << itemId;
+    qDebug() << "[Scanner] Requesting REMOVE:" << url.toString();
 }
 
-// -------------------------------------------------
-// 서버 응답 처리 (핵심 수정 부분)
-// -------------------------------------------------
+// 서버 응답 처리
 void BarcodeScanner::onNetworkReply(QNetworkReply *reply)
 {
-    // 1. 에러 체크
+    // 에러 체크
     if (reply->error() != QNetworkReply::NoError) {
         qDebug() << "[Scanner] Error:" << reply->errorString();
         emit fetchFailed(reply->errorString());
@@ -56,7 +55,7 @@ void BarcodeScanner::onNetworkReply(QNetworkReply *reply)
         return;
     }
 
-    // 2. 데이터 수신 및 JSON 파싱
+    // 데이터 수신 및 JSON 파싱
     QByteArray data = reply->readAll();
     QJsonDocument doc = QJsonDocument::fromJson(data);
     
@@ -69,13 +68,10 @@ void BarcodeScanner::onNetworkReply(QNetworkReply *reply)
     QJsonObject obj = doc.object();
     QString action = obj["action"].toString(); 
 
-    // 3. 데이터 처리 ("add" 액션)
+    // 데이터 처리 
     if (action == "add") {
         Item item;
 
-        // [핵심] 서버가 보내준 데이터를 그대로 사용합니다.
-        
-        // (1) 상품명 파싱 ("item" 또는 "name" 키 확인)
         if (obj.contains("item")) {
             item.name = obj["item"].toString();
         } else if (obj.contains("name")) {
@@ -84,18 +80,16 @@ void BarcodeScanner::onNetworkReply(QNetworkReply *reply)
             item.name = "알수없음";
         }
 
-        // (2) ID 파싱 (서버가 보내준 id 사용, 없으면 0)
         if (obj.contains("id")) {
             item.id = obj["id"].toInt();
         } else {
             item.id = 0; 
         }
 
-        // (3) 가격 파싱 (서버가 보내준 price 사용!)
+        // 가격
         if (obj.contains("price")) {
             item.price = obj["price"].toInt();
         } else {
-            // 서버가 가격을 안 보냈을 경우 디버그 로그 출력
             qDebug() << "[Warning] Server response missing 'price' field!";
             item.price = 0; 
         }
@@ -106,7 +100,6 @@ void BarcodeScanner::onNetworkReply(QNetworkReply *reply)
                  << ", Price:" << item.price 
                  << ", ID:" << item.id;
 
-        // UI 갱신 신호 전송
         emit itemFetched(item, expectedWeight);
     }
     else if (action == "remove") {
