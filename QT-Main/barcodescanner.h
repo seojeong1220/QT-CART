@@ -4,7 +4,16 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include "item.h" 
+#include <QString>
+
+class Item {
+public:
+    QString id = "";
+    QString name = "";
+    double price = 0.0;
+    double weight = 0.0;
+    int stock = 0; 
+};
 
 class BarcodeScanner : public QObject
 {
@@ -14,7 +23,7 @@ public:
 
     void setApiBaseUrl(const QString &ip, int port);
     void fetchItemDetails(const QString& itemId); 
-    void removeItem(int itemId);
+    void removeItem(const QString& itemId);
 
 signals:
     void itemFetched(const Item &item, double cartWeight); 

@@ -24,6 +24,7 @@ PageGuide::PageGuide(QWidget *parent)
     }
     ui->lblmap->setStyleSheet("border-radius:14px; background:#ffffff; border: none;");
 
+    // 버튼 연결
     connect(ui->btnBackToCart, &QPushButton::clicked, this, &PageGuide::onBackToCartClicked);
     connect(ui->btnpuzzle, &QPushButton::clicked, this, &PageGuide::onPuzzleClicked);
     connect(ui->btncream,  &QPushButton::clicked, this, &PageGuide::onCreamClicked);
@@ -86,13 +87,12 @@ void PageGuide::onPayClicked()
     showMovePopup("결제 구역");
 }
 
-// 팝업창 
 void PageGuide::showMovePopup(const QString &zoneText)
 {
     // 이미 떠있는 팝업이 있다면 닫기 
     if (m_currentPopup) {
         m_currentPopup->close();
-        delete m_currentPopup;
+        delete m_currentPopup; 
         m_currentPopup = nullptr;
     }
 
@@ -102,7 +102,7 @@ void PageGuide::showMovePopup(const QString &zoneText)
 
     dlg.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
     dlg.setModal(true);
-    dlg.setAttribute(Qt::WA_DeleteOnClose); // 닫히면 자동 삭제
+    dlg.setAttribute(Qt::WA_DeleteOnClose); 
     dlg.setStyleSheet("QDialog { background: transparent; }");
     dlg.setFixedSize(520, 260);
 
@@ -136,15 +136,15 @@ void PageGuide::showMovePopup(const QString &zoneText)
     lay->setContentsMargins(28, 24, 28, 24);
     lay->setSpacing(14);
 
-    QLabel *title = new QLabel(QString("%1로 이동중입니다").arg(zoneText), card);
+    QLabel *title = new QLabel(QString("%1로 이동 중입니다").arg(zoneText), card);
     title->setAlignment(Qt::AlignCenter);
     title->setStyleSheet("font-size:24px; font-weight:900; color:#111827;");
 
-    QLabel *desc = new QLabel("도착 시 자동으로 닫힙니다.\n중지하려면 버튼을 누르세요.", card);
+    QLabel *desc = new QLabel("확인을 누르면 이동을 중단합니다.", card);
     desc->setAlignment(Qt::AlignCenter);
     desc->setStyleSheet("font-size:16px; font-weight:700; color:#6B7280;");
 
-    QPushButton *stopBtn = new QPushButton("안내 중지", card);
+    QPushButton *stopBtn = new QPushButton("확인(이동 중단)", card);
     stopBtn->setFixedHeight(48);
     stopBtn->setMinimumWidth(220);
     stopBtn->setStyleSheet(
@@ -161,7 +161,7 @@ void PageGuide::showMovePopup(const QString &zoneText)
     lay->addWidget(stopBtn, 0, Qt::AlignHCenter);
     lay->addStretch();
 
-    // 안내 중지 
+    // 안내 중지 버튼 -> MainWidget에 신호
     connect(stopBtn, &QPushButton::clicked, this, [this, &dlg](){
         emit requestStop(); 
         dlg.accept();
@@ -170,6 +170,7 @@ void PageGuide::showMovePopup(const QString &zoneText)
     dlg.show(); 
 }
 
+// 도착 알림 -> 팝업 끄기
 void PageGuide::onRobotArrived()
 {
     if (m_currentPopup) {

@@ -6,7 +6,6 @@
 #include <QLineEdit>
 #include <QString>
 
-#include "item.h"
 #include "barcodescanner.h" 
 
 namespace Ui { class PageCart; }
@@ -33,6 +32,8 @@ public:
     };
 
     QVector<CartLine> getCartLines() const;
+    
+    // MainWidget에서 API 설정 받기
     void setApiConfig(const QString &ip, int port);
 
 public slots:
@@ -41,7 +42,7 @@ public slots:
 signals:
     void guideModeClicked();
     void goWelcome();
-    void requestCheckout(); 
+    void requestCheckout();
 
 private slots:
     void onPlusClicked();

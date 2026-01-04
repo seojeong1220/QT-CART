@@ -14,8 +14,6 @@
 #include <QPixmap>
 #include <cmath>
 
-// [삭제됨] #define SERVER_BASE_URL ... (이제 외부에서 주입받음)
-
 static QString moneyKR(qint64 v)
 {
     const QLocale loc(QLocale::Korean, QLocale::SouthKorea);
@@ -44,7 +42,7 @@ PageCart::PageCart(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // 그림자 효과 (기존 코드 유지)
+    // 그림자 효과
     auto makeShadow = [](QObject *parent){
         auto *s = new QGraphicsDropShadowEffect(parent);
         s->setBlurRadius(18);
@@ -73,7 +71,6 @@ PageCart::PageCart(QWidget *parent)
 
     qApp->installEventFilter(this);
 
-    // [핵심] Scanner 초기화
     m_scanner = new BarcodeScanner(this);
     connect(m_scanner, &BarcodeScanner::itemFetched, this, &PageCart::handleItemFetched);
     connect(m_scanner, &BarcodeScanner::fetchFailed, this, &PageCart::handleFetchFailed);
@@ -93,15 +90,11 @@ PageCart::PageCart(QWidget *parent)
     
     updateTotal();
 
-    // 버튼 연결
     if (ui->btnHome) {
         connect(ui->btnHome, &QPushButton::clicked, this, [this](){
             emit goWelcome();
         });
     }
-    
-    // [중요] resetCart는 여기서 호출하지만 URL이 아직 설정 안 됐을 수 있음.
-    // MainWidget에서 setApiConfig 호출 후 resetCart를 다시 불러주는 게 좋음.
 }
 
 PageCart::~PageCart()
@@ -109,19 +102,16 @@ PageCart::~PageCart()
     delete ui;
 }
 
-// [추가됨] MainWidget으로부터 API URL 설정 받기
+// MainWidget으로부터 API 설정 주입
 void PageCart::setApiConfig(const QString &ip, int port)
 {
     if (m_scanner) {
         m_scanner->setApiBaseUrl(ip, port);
     }
-    // [선택] URL 설정 후 카트 초기화 한 번 실행
     resetCart();
 }
 
-// ----------------------------------------
-// 행 추가 헬퍼 함수
-// ----------------------------------------
+// 카트 행 추가 
 void PageCart::addRowForItem(const QString& id, const QString& name, int unitPrice, int qty, double weight)
 {
     int row = ui->tableCart->rowCount();
@@ -131,13 +121,12 @@ void PageCart::addRowForItem(const QString& id, const QString& name, int unitPri
     m_unitPrice.append(unitPrice);
 
     ItemInfo info;
-    info.id = id.toInt(); // int로 변환해서 저장 (Scanner는 QString으로 주지만 구조체는 int)
+    info.id = id.toInt(); 
     info.name = name;
     info.price = unitPrice;
     info.weight = weight;
     m_items.append(info);
 
-    // 셀 위젯 생성 람다 (기존 유지)
     auto makeCenterCell = [&](QWidget *child) -> QWidget* {
         QWidget *w = new QWidget(ui->tableCart);
         auto *lay = new QHBoxLayout(w);
@@ -157,7 +146,7 @@ void PageCart::addRowForItem(const QString& id, const QString& name, int unitPri
         return w;
     };
 
-    // (0) 이미지
+    // 이미지
     QLabel *img = new QLabel(ui->tableCart);
     img->setFixedSize(44, 44);
     img->setAlignment(Qt::AlignCenter);
@@ -166,35 +155,29 @@ void PageCart::addRowForItem(const QString& id, const QString& name, int unitPri
         img->setPixmap(px.scaled(44, 44, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
     }
     ui->tableCart->setCellWidget(row, 0, makeCenterCell(img));
-
-    // (1) 상품명
     ui->tableCart->setItem(row, 1, new QTableWidgetItem(name));
 
-    // (2) + 버튼
     QPushButton *btnPlus = new QPushButton("+", ui->tableCart);
     btnPlus->setFixedSize(26, 30);
     btnPlus->setStyleSheet("QPushButton { background-color: rgb(37,99,235); color: white; border-radius: 10px; font-weight: bold; }");
     ui->tableCart->setCellWidget(row, 2, makeCenterCell(btnPlus));
     connect(btnPlus, &QPushButton::clicked, this, &PageCart::onPlusClicked);
 
-    // (3) 수량
     QTableWidgetItem *qtyItem = new QTableWidgetItem(QString::number(qty));
     qtyItem->setTextAlignment(Qt::AlignCenter);
     ui->tableCart->setItem(row, 3, qtyItem);
 
-    // (4) - 버튼
     QPushButton *btnMinus = new QPushButton("-", ui->tableCart);
     btnMinus->setFixedSize(30, 30);
     btnMinus->setStyleSheet("QPushButton { background-color: rgb(154,153,150); color: white; border-radius: 10px; font-weight: bold; }");
     ui->tableCart->setCellWidget(row, 4, makeCenterCell(btnMinus));
     connect(btnMinus, &QPushButton::clicked, this, &PageCart::onMinusClicked);
 
-    // (5) 가격
     QTableWidgetItem *priceItem = new QTableWidgetItem(moneyKR(0));
     priceItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
     ui->tableCart->setItem(row, 5, priceItem);
 
-    // (6) X 삭제
+    // 삭제 버튼
     QPushButton *btnDelete = new QPushButton("X", ui->tableCart);
     btnDelete->setFixedSize(30, 30);
     btnDelete->setStyleSheet("QPushButton { background-color: rgb(224,27,36); color: white; border-radius: 10px; font-weight: bold; }");
@@ -204,9 +187,6 @@ void PageCart::addRowForItem(const QString& id, const QString& name, int unitPri
     updateRowAmount(row);
 }
 
-// ----------------------------------------
-// + 버튼 (수정됨: Scanner 사용)
-// ----------------------------------------
 void PageCart::onPlusClicked()
 {
     QPushButton *btn = qobject_cast<QPushButton*>(sender());
@@ -215,21 +195,10 @@ void PageCart::onPlusClicked()
     int row = getRowFromButton(btn);
     if (row < 0 || row >= m_items.size()) return;
 
-    // int ID를 QString으로 변환하여 전달
     QString itemId = QString::number(m_items[row].id);
-    
-    // [수정] 직접 통신 대신 Scanner 사용 (일관성 유지)
-    // Scanner->fetchItemDetails(id)를 호출하면 서버에 add 요청을 보내고,
-    // 성공 시 handleItemFetched가 호출되어 UI가 +1 됩니다.
     m_scanner->fetchItemDetails(itemId);
-    
-    // (참고: Optimistic Update를 원하면 여기서 UI를 먼저 바꿔도 되지만, 
-    //  handleItemFetched에서 처리하므로 중복 방지를 위해 생략합니다.)
 }
 
-// ----------------------------------------
-// - 버튼 (수정됨: Scanner 사용)
-// ----------------------------------------
 void PageCart::onMinusClicked()
 {
     QPushButton *btn = qobject_cast<QPushButton*>(sender());
@@ -238,14 +207,12 @@ void PageCart::onMinusClicked()
     int row = getRowFromButton(btn);
     if (row < 0 || row >= m_items.size()) return;
 
-    int currentQty = ui->tableCart->item(row, 3)->text().toInt();
-    int itemId = m_items[row].id;
-
-    // [수정] Scanner의 remove 기능 사용
+    QString itemId = QString::number(m_items[row].id);
     m_scanner->removeItem(itemId);
 
-    // removeItem은 리턴값(Signal)이 따로 없으므로 UI를 수동으로 갱신 (Optimistic Update)
+    int currentQty = ui->tableCart->item(row, 3)->text().toInt();
     int newQty = currentQty - 1;
+
     if (newQty <= 0) {
         m_unitPrice.removeAt(row);
         m_items.removeAt(row);
@@ -257,9 +224,6 @@ void PageCart::onMinusClicked()
     updateTotal();
 }
 
-// ----------------------------------------
-// 삭제 버튼 (수정됨: Scanner 사용)
-// ----------------------------------------
 void PageCart::onDeleteClicked()
 {
     QPushButton *btn = qobject_cast<QPushButton*>(sender());
@@ -268,15 +232,13 @@ void PageCart::onDeleteClicked()
     int row = getRowFromButton(btn);
     if (row < 0 || row >= m_items.size()) return;
 
-    int itemId = m_items[row].id;
+    QString itemId = QString::number(m_items[row].id);
     int qty = ui->tableCart->item(row, 3)->text().toInt();
 
-    // 1. 서버에 삭제 요청 (수량만큼 반복)
     for (int i = 0; i < qty; ++i) {
         m_scanner->removeItem(itemId);
     }
 
-    // 2. UI 즉시 삭제
     m_unitPrice.removeAt(row);
     m_items.removeAt(row);
     ui->tableCart->removeRow(row);
@@ -340,17 +302,13 @@ bool PageCart::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-// ----------------------------------------
-// Scanner 응답 처리 (UI 갱신)
-// ----------------------------------------
 void PageCart::handleItemFetched(const Item &item)
 {
-    QString strId = item.id; // Item 구조체는 QString ID를 씀
+    QString strId = item.id;
     int intId = strId.toInt();
 
     int rowFound = -1;
     for (int r = 0; r < ui->tableCart->rowCount(); ++r) {
-        // ID 또는 이름으로 검색
         if (m_items[r].id == intId || m_items[r].name == item.name) { 
             rowFound = r;
             break;
@@ -358,15 +316,12 @@ void PageCart::handleItemFetched(const Item &item)
     }
 
     if (rowFound == -1) {
-        // [신규]
         int unit = static_cast<int>(std::lround(item.price));
         addRowForItem(strId, item.name, unit, 1, item.weight);
     } else {
-        // [증가]
         int qty = ui->tableCart->item(rowFound, 3)->text().toInt();
         ui->tableCart->item(rowFound, 3)->setText(QString::number(qty + 1));
         
-        // 정보 업데이트
         m_items[rowFound].id = intId;
         m_items[rowFound].weight = item.weight;
         
@@ -381,9 +336,6 @@ void PageCart::handleFetchFailed(const QString &err)
     QMessageBox::warning(this, "스캔 실패", "상품 정보를 불러오지 못했습니다.\n" + err);
 }
 
-// ----------------------------------------
-// 버튼 핸들러 (수정됨)
-// ----------------------------------------
 void PageCart::on_btnGuide_clicked() { emit guideModeClicked(); }
 
 void PageCart::on_pushButton_clicked() { resetCart(); }
@@ -391,17 +343,12 @@ void PageCart::on_pushButton_clicked() { resetCart(); }
 void PageCart::on_btnCheckout_clicked()
 {
     if (ui->tableCart->rowCount() == 0) {
-        QMessageBox::information(this, "알림", "장바구니에 상품을 담아주세요.");
+        QMessageBox::information(this, "알림", "장바구니가 비어있습니다.");
         return;
     }
-    
-    // [핵심] 직접 체크하지 않고 MainWidget에 요청만 보냄 (교통정리)
     emit requestCheckout(); 
 }
 
-// ----------------------------------------
-// 기타 유틸리티
-// ----------------------------------------
 QVector<PageCart::CartLine> PageCart::getCartLines() const
 {
     QVector<CartLine> out;
@@ -417,13 +364,8 @@ QVector<PageCart::CartLine> PageCart::getCartLines() const
     return out;
 }
 
-// 카트 초기화 (서버 연동은 Scanner에 기능이 없으면 여기서 직접 호출해야 함. Scanner에 reset 기능 추가 추천)
 void PageCart::resetCart()
 {
-    // 일단 여기서는 직접 호출하되, URL은 주입받은 값이 없으면 하드코딩될 수 있으므로 주의.
-    // (Scanner에 reset 기능을 추가하는 것이 가장 좋은 설계입니다. 임시로 하드코딩 제거를 위해 생략하거나 Scanner에 추가하세요)
-    
-    // UI 초기화
     ui->tableCart->setRowCount(0);
     m_unitPrice.clear();
     m_items.clear();

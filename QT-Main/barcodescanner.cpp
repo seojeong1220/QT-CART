@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QVariant> 
 
 BarcodeScanner::BarcodeScanner(QObject *parent)
     : QObject(parent),
@@ -16,6 +17,7 @@ BarcodeScanner::BarcodeScanner(QObject *parent)
 void BarcodeScanner::setApiBaseUrl(const QString &ip, int port)
 {
     m_apiBaseUrl = QString("http://%1:%2").arg(ip).arg(port);
+    qDebug() << "[Scanner] API Base URL set to:" << m_apiBaseUrl;
 }
 
 // 상품 추가
@@ -28,11 +30,14 @@ void BarcodeScanner::fetchItemDetails(const QString& itemId)
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     
     manager->post(request, QByteArray());
-    qDebug() << "[Scanner] Requesting ADD:" << url.toString();
+
+    qDebug() << "==================================================";
+    qDebug() << "[Scanner] Requesting ADD -> ID:" << itemId;
+    qDebug() << "[Scanner] URL:" << url.toString();
 }
 
 // 상품 제거
-void BarcodeScanner::removeItem(int itemId)
+void BarcodeScanner::removeItem(const QString& itemId)
 {
     QString path = QString("%1/cart/remove/%2").arg(m_apiBaseUrl).arg(itemId);
     QUrl url(path);
@@ -41,24 +46,25 @@ void BarcodeScanner::removeItem(int itemId)
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     manager->post(request, QByteArray());
-    qDebug() << "[Scanner] Requesting REMOVE:" << url.toString();
+
+    qDebug() << "==================================================";
+    qDebug() << "[Scanner] Requesting REMOVE -> ID:" << itemId;
+    qDebug() << "[Scanner] URL:" << url.toString();
 }
 
-// 서버 응답 처리
 void BarcodeScanner::onNetworkReply(QNetworkReply *reply)
 {
-    // 에러 체크
     if (reply->error() != QNetworkReply::NoError) {
-        qDebug() << "[Scanner] Error:" << reply->errorString();
+        qDebug() << "[Scanner] Network Error:" << reply->errorString();
         emit fetchFailed(reply->errorString());
         reply->deleteLater();
         return;
     }
 
-    // 데이터 수신 및 JSON 파싱
     QByteArray data = reply->readAll();
+    qDebug() << "[Scanner] Raw Response Data:" << data;
+
     QJsonDocument doc = QJsonDocument::fromJson(data);
-    
     if (!doc.isObject()) {
         qDebug() << "[Scanner] Invalid JSON response";
         reply->deleteLater();
@@ -68,38 +74,30 @@ void BarcodeScanner::onNetworkReply(QNetworkReply *reply)
     QJsonObject obj = doc.object();
     QString action = obj["action"].toString(); 
 
-    // 데이터 처리 
+    qDebug() << "[Scanner] Parsed Action:" << action;
+
+    // 데이터 유효성 검사
     if (action == "add") {
         Item item;
 
-        if (obj.contains("item")) {
-            item.name = obj["item"].toString();
-        } else if (obj.contains("name")) {
-            item.name = obj["name"].toString();
-        } else {
-            item.name = "알수없음";
-        }
+        if (obj.contains("item")) item.name = obj["item"].toString();
+        else if (obj.contains("name")) item.name = obj["name"].toString();
+        else item.name = "알수없음";
 
         if (obj.contains("id")) {
-            item.id = obj["id"].toInt();
-        } else {
-            item.id = 0; 
+            item.id = obj["id"].toVariant().toString(); 
         }
 
-        // 가격
-        if (obj.contains("price")) {
-            item.price = obj["price"].toInt();
-        } else {
-            qDebug() << "[Warning] Server response missing 'price' field!";
-            item.price = 0; 
+        if (obj.contains("price")) item.price = obj["price"].toDouble();
+
+        double expectedWeight = 0.0;
+        if (obj.contains("expected_weight")) {
+             expectedWeight = obj["expected_weight"].toDouble();
+             item.weight = expectedWeight;
         }
 
-        double expectedWeight = obj["expected_weight"].toDouble();
-
-        qDebug() << "[Scanner] Fetched from DB -> Name:" << item.name 
-                 << ", Price:" << item.price 
-                 << ", ID:" << item.id;
-
+        qDebug() << "[Scanner] Item Parsed: " << item.name << ", " << item.price;
+        
         emit itemFetched(item, expectedWeight);
     }
     else if (action == "remove") {

@@ -40,7 +40,7 @@ private:
     QDialog *m_currentPopup = nullptr; 
 
     void applyTreePixmap();
-    void showMovePopup(const QString &zoneText);
+    void showMovePopup(const QString &zoneText);                   
 };
 
 #endif // PAGEGUIDE_H
