@@ -57,6 +57,9 @@ private slots:
     void on_btnCheckout_clicked();   // 결제 버튼
     void on_btnGuide_clicked();      // 안내 버튼
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private:
     Ui::PageCart *ui;
     
@@ -72,5 +75,8 @@ private:
     void updateTotal();
     int getRowFromButton(QWidget *btn);
 };
+
+
+
 
 #endif // PAGECART_H

@@ -408,11 +408,11 @@ background-color: rgb(242, 244, 245);
       <property name="styleSheet">
        <string notr="true">font: 13pt &quot;Ubuntu Condensed&quot;;
 color: rgb(0, 0, 0);
-background-color: #F2F4F7;
-</string>
+
+color: rgb(154, 153, 150);</string>
       </property>
       <property name="text">
-       <string>O Checkout   &gt;</string>
+       <string>O Checkout   </string>
       </property>
      </widget>
      <widget class="QLabel" name="label_8">
@@ -444,11 +444,11 @@ background-color: #F2F4F7;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">font: 13pt &quot;Ubuntu Condensed&quot;;
-color: rgb(154, 153, 150);
+background-color: #F2F4F7;
 background-color: #F2F4F7;</string>
       </property>
       <property name="text">
-       <string>O Cart    &gt;</string>
+       <string>O Cart    </string>
       </property>
      </widget>
      <widget class="QLabel" name="label_3">

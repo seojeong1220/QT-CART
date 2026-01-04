@@ -60,25 +60,25 @@ void PageGuide::onBackToCartClicked()
 void PageGuide::onPuzzleClicked()
 {
     emit requestGoal(-0.1, -2.4);
-    showMovePopup("01코너 퍼즐");
+    showMovePopup("01코너 식품");
 }
 
 void PageGuide::onSnackClicked()
 {
     emit requestGoal(3.0, 0.55); 
-    showMovePopup("02코너 과자");
+    showMovePopup("02코너 장난감");
 }
 
 void PageGuide::onCreamClicked()
 {
     emit requestGoal(2.6, -6.5); 
-    showMovePopup("03코너 핸드크림");
+    showMovePopup("03코너 생필품");
 }
 
 void PageGuide::onbtnphoneClicked()
 {
     emit requestGoal(-0.1, -5.0); 
-    showMovePopup("04코너 핸드폰");
+    showMovePopup("04코너 전자제품");
 }
 
 void PageGuide::onPayClicked()
