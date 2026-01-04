@@ -134,7 +134,7 @@ background-color: #F2F4F7;
 </string>
       </property>
       <property name="text">
-       <string>O Checkout   &gt;</string>
+       <string>O Checkout   </string>
       </property>
      </widget>
      <widget class="QLabel" name="label_2">
@@ -152,7 +152,7 @@ color: rgb(154, 153, 150);
 background-color: #F2F4F7;</string>
       </property>
       <property name="text">
-       <string>O Cart    &gt;</string>
+       <string>O Cart    </string>
       </property>
      </widget>
      <widget class="QLabel" name="label_5">
