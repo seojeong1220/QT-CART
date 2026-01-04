@@ -11,7 +11,7 @@
 namespace Ui { class PageCart; }
 
 struct ItemInfo {
-    int id;  
+    QString id;  
     QString name;
     int price;
     double weight;
@@ -36,13 +36,15 @@ public:
     // MainWidget에서 API 설정 받기
     void setApiConfig(const QString &ip, int port);
 
+    double getTotalWeight() const;
+
 public slots:
     void resetCart(); 
 
 signals:
     void guideModeClicked();
     void goWelcome();
-    void requestCheckout();
+    void requestCheckout(double totalWeight);
 
 private slots:
     void onPlusClicked();

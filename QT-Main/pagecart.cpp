@@ -121,7 +121,7 @@ void PageCart::addRowForItem(const QString& id, const QString& name, int unitPri
     m_unitPrice.append(unitPrice);
 
     ItemInfo info;
-    info.id = id.toInt(); 
+    info.id = id; 
     info.name = name;
     info.price = unitPrice;
     info.weight = weight;
@@ -195,7 +195,7 @@ void PageCart::onPlusClicked()
     int row = getRowFromButton(btn);
     if (row < 0 || row >= m_items.size()) return;
 
-    QString itemId = QString::number(m_items[row].id);
+    QString itemId = m_items[row].id;
     m_scanner->fetchItemDetails(itemId);
 }
 
@@ -207,7 +207,7 @@ void PageCart::onMinusClicked()
     int row = getRowFromButton(btn);
     if (row < 0 || row >= m_items.size()) return;
 
-    QString itemId = QString::number(m_items[row].id);
+    QString itemId = m_items[row].id;
     m_scanner->removeItem(itemId);
 
     int currentQty = ui->tableCart->item(row, 3)->text().toInt();
@@ -232,7 +232,7 @@ void PageCart::onDeleteClicked()
     int row = getRowFromButton(btn);
     if (row < 0 || row >= m_items.size()) return;
 
-    QString itemId = QString::number(m_items[row].id);
+    QString itemId = m_items[row].id;
     int qty = ui->tableCart->item(row, 3)->text().toInt();
 
     for (int i = 0; i < qty; ++i) {
@@ -305,11 +305,10 @@ bool PageCart::eventFilter(QObject *obj, QEvent *event)
 void PageCart::handleItemFetched(const Item &item)
 {
     QString strId = item.id;
-    int intId = strId.toInt();
 
     int rowFound = -1;
     for (int r = 0; r < ui->tableCart->rowCount(); ++r) {
-        if (m_items[r].id == intId || m_items[r].name == item.name) { 
+        if (m_items[r].id == strId || m_items[r].name == item.name) {
             rowFound = r;
             break;
         }
@@ -322,7 +321,7 @@ void PageCart::handleItemFetched(const Item &item)
         int qty = ui->tableCart->item(rowFound, 3)->text().toInt();
         ui->tableCart->item(rowFound, 3)->setText(QString::number(qty + 1));
         
-        m_items[rowFound].id = intId;
+        m_items[rowFound].id = strId;
         m_items[rowFound].weight = item.weight;
         
         updateRowAmount(rowFound);
@@ -339,15 +338,6 @@ void PageCart::handleFetchFailed(const QString &err)
 void PageCart::on_btnGuide_clicked() { emit guideModeClicked(); }
 
 void PageCart::on_pushButton_clicked() { resetCart(); }
-
-void PageCart::on_btnCheckout_clicked()
-{
-    if (ui->tableCart->rowCount() == 0) {
-        QMessageBox::information(this, "알림", "장바구니가 비어있습니다.");
-        return;
-    }
-    emit requestCheckout(); 
-}
 
 QVector<PageCart::CartLine> PageCart::getCartLines() const
 {
@@ -386,4 +376,33 @@ int PageCart::getRowFromButton(QWidget *btn)
         }
     }
     return -1;
+}
+
+double PageCart::getTotalWeight() const
+{
+    double totalWeight = 0.0;
+    // m_items와 테이블의 행은 동기화되어 있다고 가정
+    for(int i = 0; i < m_items.size(); ++i) {
+        if (i >= ui->tableCart->rowCount()) break;
+
+        QTableWidgetItem *itemQty = ui->tableCart->item(i, 3);
+        if (itemQty) {
+            int qty = itemQty->text().toInt();
+            totalWeight += (m_items[i].weight * qty);
+        }
+    }
+    return totalWeight;
+}
+
+void PageCart::on_btnCheckout_clicked()
+{
+    if (ui->tableCart->rowCount() == 0) {
+        QMessageBox::information(this, "알림", "장바구니가 비어있습니다.");
+        return;
+    }
+    
+    // [수정] 예상 무게를 계산하여 MainWidget으로 전달
+    double expected = getTotalWeight();
+    qDebug() << "Request Checkout - Expected Weight:" << expected;
+    emit requestCheckout(expected); 
 }
