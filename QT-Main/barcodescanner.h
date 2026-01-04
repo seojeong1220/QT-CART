@@ -4,14 +4,15 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QString>
 
 class Item {
 public:
     QString id = "";
     QString name = "";
     double price = 0.0;
-    int stock = 0;
     double weight = 0.0;
+    int stock = 0; 
 };
 
 class BarcodeScanner : public QObject
@@ -20,11 +21,11 @@ class BarcodeScanner : public QObject
 public:
     explicit BarcodeScanner(QObject *parent = nullptr);
 
-    void fetchItemDetails(const QString& itemId); // 바코드 스캔 시 호출
+    void setApiBaseUrl(const QString &ip, int port);
+    void fetchItemDetails(const QString& itemId); 
     void removeItem(const QString& itemId);
 
 signals:
-    // UI(PageCart)로 데이터를 넘겨주는 핵심 신호
     void itemFetched(const Item &item, double cartWeight); 
     void fetchFailed(const QString &error);
 
@@ -33,6 +34,7 @@ private slots:
 
 private:
     QNetworkAccessManager *manager;
+    QString m_apiBaseUrl; 
 };
 
 #endif // BARCODESCANNER_H

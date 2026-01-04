@@ -31,49 +31,65 @@
                 <div id="detailStatusText" class="panel-status">● 데이터 로딩중</div>
             </div>
 
-            <div class="sensor-grid">
-                <div class="data-box">
-                    <div class="data-label">배터리 잔량</div>
-                    <div class="data-value"><span id="detailBattery">--</span><span class="unit">%</span></div>
-                </div>
-                <div class="data-box">
-                    <div class="data-label">현재 속도</div>
-                    <div class="data-value"><span id="detailSpeed">--</span><span class="unit">m/s</span></div>
-                </div>
-                <div class="data-box">
-                    <div class="data-label">기대 무게 (상품 합계)</div>
-                    <div class="data-value" style="color:#fbbf24;"><span id="detailExpected">0</span><span class="unit">g</span></div>
-                </div>
-                <div class="data-box">
-                    <div class="data-label">실제 무게 (센서 값)</div>
-                    <div class="data-value"><span id="detailReal">--</span><span class="unit">g</span></div>
-                </div>
-            </div>
+            <div class="panel-body">
+                
+                <div class="panel-left">
+                    <div class="sensor-grid">
+                        <div class="data-box">
+                            <div class="data-label">배터리 잔량</div>
+                            <div class="data-value"><span id="detailBattery">--</span><span class="unit">%</span></div>
+                        </div>
+                        <div class="data-box">
+                            <div class="data-label">현재 속도</div>
+                            <div class="data-value"><span id="detailSpeed">--</span><span class="unit">cm/s</span></div>
+                        </div>
+                        <div class="data-box">
+                            <div class="data-label">기대 무게</div>
+                            <div class="data-value" style="color:#fbbf24;"><span id="detailExpected">0</span><span class="unit">g</span></div>
+                        </div>
+                        <div class="data-box">
+                            <div class="data-label">실제 무게</div>
+                            <div class="data-value"><span id="detailReal">--</span><span class="unit">g</span></div>
+                        </div>
+                    </div>
 
-            <div class="items-section">
-                <div class="items-header">
-                    <div class="items-title">📦 담긴 상품 목록</div>
-                    <div class="items-summary">
-                        총 <span id="detailCount">0</span>개 
-                        <span class="total-price" id="detailPrice">0원</span>
+                    <div class="items-section">
+                        <div class="items-header">
+                            <div class="items-title">📦 담긴 상품 목록</div>
+                            <div class="items-summary">
+                                총 <span id="detailCount">0</span>개 
+                                <span class="total-price" id="detailPrice">0원</span>
+                            </div>
+                        </div>
+                        <div class="table-scroll-box">
+                            <table class="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>상품명</th>
+                                        <th style="text-align: right;">단가</th>
+                                        <th style="text-align: right;">무게</th>
+                                        <th style="text-align: right;">수량</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailListBody">
+                                    <tr><td colspan="4" style="text-align: center; color: #64748b; padding: 30px;">데이터 없음</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div class="table-scroll-box">
-                    <table class="items-table">
-                        <thead>
-                            <tr>
-                                <th>상품명</th>
-                                <th style="text-align: right;">단가</th>
-                                <th style="text-align: right;">무게</th>
-                                <th style="text-align: right;">수량</th>
-                            </tr>
-                        </thead>
-                        <tbody id="detailListBody">
-                            <tr><td colspan="4" style="text-align: center; color: #64748b; padding: 30px;">데이터 없음</td></tr>
-                        </tbody>
-                    </table>
+
+                <div class="panel-right">
+                    <div class="map-header">
+                        <div class="map-title">🗺️ 실시간 위치</div>
+                        <div class="map-coords" id="mapCoords">X: 0.0, Y: 0.0</div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="robotMap" width="500" height="400"></canvas>
+                    </div>
                 </div>
-            </div>
+
+            </div> 
         </div>
     </main>
 
