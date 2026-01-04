@@ -5,7 +5,7 @@ from geometry_msgs.msg import TwistStamped, PoseWithCovarianceStamped
 from nav2_msgs.action import NavigateToPose
 from sensor_msgs.msg import BatteryState
 from nav_msgs.msg import Odometry
-from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
 import socket
 import time
@@ -41,9 +41,10 @@ class IntegratedRosController(Node):
         super().__init__('integrated_ros_controller_node')
 
         amcl_qos = QoSProfile(
-            depth=10,
-            reliability=ReliabilityPolicy.RELIABLE,
-            durability=DurabilityPolicy.TRANSIENT_LOCAL 
+            depth=1,  
+            reliability=ReliabilityPolicy.RELIABLE,       
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,  
+            history=HistoryPolicy.KEEP_LAST               
         )
 
         self.cmd_vel_pub = self.create_publisher(TwistStamped, '/cmd_vel', 10)
@@ -82,10 +83,10 @@ class IntegratedRosController(Node):
         
         self.is_weight_ok = True  
         self.last_weight_check_time = 0.0
-        self.weight_check_interval = 2.0 
+        self.weight_check_interval = 3.0 
 
         self.get_logger().info("Waiting for Nav2 Server...")
-        if not self.nav_to_pose_client.wait_for_server(timeout_sec=2.0):
+        if not self.nav_to_pose_client.wait_for_server(timeout_sec=5.0):
             self.get_logger().warn("Nav2 Server not ready yet.")
 
         self.create_timer(0.05, self.control_loop)
@@ -103,7 +104,7 @@ class IntegratedRosController(Node):
     def trigger_async_weight_check(self):
         def _check():
             try:
-                response = requests.get(API_WEIGHT_URL, timeout=0.2) 
+                response = requests.get(API_WEIGHT_URL, timeout=0.5) 
                 if response.status_code == 200:
                     data = response.json()
                     movable = data.get("movable", True)
@@ -144,7 +145,7 @@ class IntegratedRosController(Node):
                     "human_x": self.human_x, 
                     "human_y": self.human_y 
                 }
-                requests.post(API_REPORT_URL, json=payload, timeout=0.1)
+                requests.post(API_REPORT_URL, json=payload, timeout=2.0)
             except: pass
         
         # 스레드 비동기 전송 후 종료 
