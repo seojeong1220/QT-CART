@@ -30,8 +30,9 @@ QT-CART는 UWB 기반 위치 추적과 ROS 2 자율주행 시스템을 결합한
 
 ---
 
-## 시스템 아키텍처
-QT-CART 시스템은 다음과 같은 구조로 구성됩니다.
+## 시스템 아키텍처  
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/25adc4e2-c11d-4e13-8591-1e328615187b" />  
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/61b1664a-8637-448b-956b-dd77fffacaac" />  
 
 - **Frontend**
   - QT 기반 터치스크린 UI
