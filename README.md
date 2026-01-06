@@ -3,7 +3,7 @@
 ## 📌 프로젝트 개요
 QT-CART는 **UWB(Ultra Wide Band) 기반 위치 추적**과 **ROS 2 자율주행 시스템**을 결합한 스마트 쇼핑카트입니다.  
 사용자를 따라 이동하거나 매장 내 특정 상품 구역으로 안내하며, 무게 센서를 이용한 **도난 방지 결제 시스템**과  
-관리자용 **대시보드**를 제공합니다. :contentReference[oaicite:0]{index=0}
+관리자용 **대시보드**를 제공합니다. 
 
 - **프로젝트 기간**: 2025.11.20 ~ 2026.01.04  
 - **팀명**: 아자아자아자쓰!  
@@ -20,8 +20,6 @@ QT-CART는 **UWB(Ultra Wide Band) 기반 위치 추적**과 **ROS 2 자율주행
 | 박서정 | 하드웨어, 로드셀 |
 | 김동현 | GUI 디자인 |
 
-:contentReference[oaicite:1]{index=1}
-
 ---
 
 ## 🎯 프로젝트 목표
@@ -29,8 +27,6 @@ QT-CART는 **UWB(Ultra Wide Band) 기반 위치 추적**과 **ROS 2 자율주행
 - ROS 2 Navigation을 이용한 **매장 내 자율주행 안내**
 - 무게 센서를 활용한 **비정상 상품 감지 및 도난 방지**
 - QT 기반 터치 UI와 **관리자 대시보드 제공**
-
-:contentReference[oaicite:2]{index=2}
 
 ---
 
@@ -48,8 +44,6 @@ QT-CART 시스템은 다음과 같은 구조로 구성됩니다.
   - UWB 위치 추적
   - 모터 제어 및 센서 데이터 처리
 
-:contentReference[oaicite:3]{index=3}
-
 ---
 
 ## 🧩 주요 기능
@@ -59,16 +53,12 @@ QT-CART 시스템은 다음과 같은 구조로 구성됩니다.
 - 선택된 좌표로 카트가 자율주행 이동
 - 목적지 도착 후 장바구니 위치로 복귀
 
-:contentReference[oaicite:4]{index=4}
-
 ---
 
 ### 2️⃣ 주인 따라가기 모드
 - UWB 태그를 소지한 사용자를 실시간 추적
 - 삼각측량 기반 위치 계산
 - 사용자 이동에 맞춰 카트가 자동 추종
-
-:contentReference[oaicite:5]{index=5}
 
 ---
 
@@ -77,8 +67,6 @@ QT-CART 시스템은 다음과 같은 구조로 구성됩니다.
 - 상품 및 결제 정보 관리
 - 센서 데이터 시각화
 
-:contentReference[oaicite:6]{index=6}
-
 ---
 
 ### 4️⃣ 도난 방지 시스템
@@ -86,16 +74,12 @@ QT-CART 시스템은 다음과 같은 구조로 구성됩니다.
 - 상품 DB의 예상 무게와 실측 무게 비교
 - 오차 발생 시 결제 차단 및 경고 표시
 
-:contentReference[oaicite:7]{index=7}
-
 ---
 
 ## 🧠 UWB 위치 추적 원리
 - **ToF(Time of Flight)** 기반 거리 측정
 - 3개의 UWB 앵커와 1개의 태그를 이용한 삼각측량
 - 계산된 좌표를 ROS 토픽으로 2초 주기로 발행
-
-:contentReference[oaicite:8]{index=8}
 
 ---
 
@@ -107,8 +91,6 @@ QT-CART 시스템은 다음과 같은 구조로 구성됩니다.
 - Raspberry Pi 7인치 터치스크린
 - TurtleBot 기반 이동 플랫폼
 
-:contentReference[oaicite:9]{index=9}
-
 ---
 
 ## 💻 Software 구성
@@ -117,8 +99,6 @@ QT-CART 시스템은 다음과 같은 구조로 구성됩니다.
 - API Server (Python)
 - UDP / HTTP 통신
 - FSM 기반 로봇 상태 제어
-
-:contentReference[oaicite:10]{index=10}
 
 ---
 
@@ -129,8 +109,6 @@ QT-CART 시스템은 다음과 같은 구조로 구성됩니다.
 | 로드셀 노이즈 | 다중 샘플링 평균 필터 적용 |
 | API 응답 지연 | 센서 처리 비동기화 (800ms → 240ms) |
 
-:contentReference[oaicite:11]{index=11}
-
 ---
 
 ## 📽 시연
@@ -138,9 +116,8 @@ QT-CART 시스템은 다음과 같은 구조로 구성됩니다.
 - 주인 따라가기 시연
 - 도난 방지 결제 시연
 
-(시연 영상은 별도 제출)
+
+https://github.com/user-attachments/assets/d50bf697-262b-453a-afcf-843e31196774
+
 
 ---
-
-## 📄 License
-본 프로젝트는 교육 목적의 프로젝트로 상업적 사용을 금합니다.
