@@ -32,7 +32,9 @@ QT-CART는 UWB 기반 위치 추적과 ROS 2 자율주행 시스템을 결합한
 
 ## 시스템 아키텍처  
 <img width="600" alt="image" src="https://github.com/user-attachments/assets/25adc4e2-c11d-4e13-8591-1e328615187b" />  
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/61b1664a-8637-448b-956b-dd77fffacaac" />  
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/0f372e72-93d3-4a17-87f6-1105ae0b31a6" />
+
+
 
 - **Frontend**
   - QT 기반 터치스크린 UI
@@ -49,28 +51,28 @@ QT-CART는 UWB 기반 위치 추적과 ROS 2 자율주행 시스템을 결합한
 
 ## 주요 기능
 
-### 1️⃣ 안내 모드
+### 1️. 안내 모드
 - 매장 지도에서 상품 구역 선택
 - 선택된 좌표로 카트가 자율주행 이동
 - 목적지 도착 후 장바구니 위치로 복귀
 
 ---
 
-### 2️⃣ 주인 따라가기 모드
+### 2️. 주인 따라가기 모드
 - UWB 태그를 소지한 사용자를 실시간 추적
 - 삼각측량 기반 위치 계산
 - 사용자 이동에 맞춰 카트가 자동 추종
 
 ---
 
-### 3️⃣ 관리자 대시보드
+### 3️. 관리자 대시보드
 - 실시간 카트 상태 모니터링
 - 상품 및 결제 정보 관리
 - 센서 데이터 시각화
 
 ---
 
-### 4️⃣ 도난 방지 시스템
+### 4️. 도난 방지 시스템
 - HX711 로드셀 센서 기반 무게 측정
 - 상품 DB의 예상 무게와 실측 무게 비교
 - 오차 발생 시 결제 차단 및 경고 표시
